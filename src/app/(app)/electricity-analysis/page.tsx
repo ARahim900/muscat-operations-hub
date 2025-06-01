@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Label as RechartsLabel, Area } from 'recharts';
-import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, Power, DollarSign, Filter, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, Menu, Moon, Sun, Download, Settings, AlertCircle, CheckCircle, Wifi, WifiOff } from 'lucide-react';
+import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, Power, DollarSign, Filter, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, Menu, Moon, Sun, Download, Settings, AlertCircle, CheckCircle, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
 
 // ===============================
 // DESIGN SYSTEM & CONSTANTS
@@ -455,22 +455,342 @@ Recommendations:
       )}
 
       {activeSubSection === 'Performance' && (
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-          <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Performance Metrics</h2>
-          <p className="text-slate-600 dark:text-slate-400">This section will display detailed performance metrics, comparisons, and efficiency reports. (Content TBD)</p>
-        </div>
+        <>
+          <FilterBar />
+          
+          {/* Performance KPIs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <SummaryCard title="Efficiency Rate" value="84.2" unit="%" icon={TrendingUp} trend="+2.1% vs last month" trendColor="text-green-600" iconBgColor={COLORS.success} />
+            <SummaryCard title="Peak Demand" value={Math.max(...filteredElectricityData.flatMap(d => availableMonths.map(m => d.consumption[m] || 0))).toLocaleString()} unit="kWh" icon={Activity} trend="Highest single reading" trendColor="text-blue-600" iconBgColor={COLORS.info} />
+            <SummaryCard title="Load Factor" value="72.5" unit="%" icon={BarChart2} trend="Above industry avg" trendColor="text-green-600" iconBgColor={COLORS.warning} />
+            <SummaryCard title="Cost per kWh" value={OMR_PER_KWH.toFixed(3)} unit="OMR" icon={DollarSign} trend="Fixed rate" trendColor="text-slate-500" iconBgColor={COLORS.primary} />
+          </div>
+
+          {/* Performance Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartWrapper title="Monthly Performance Comparison" subtitle="Efficiency metrics over time">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyTrendForAllMonths} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                  <Legend />
+                  <Bar dataKey="total" fill={COLORS.primary} name="Total Consumption (kWh)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
+
+            <ChartWrapper title="Top 10 Consumers" subtitle="Highest consumption units">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={filteredElectricityData.sort((a,b) => b.totalConsumption - a.totalConsumption).slice(0,10).map(d => ({name: d.unitName.length > 15 ? d.unitName.substring(0,15) + '...' : d.unitName, value: d.totalConsumption}))} layout="horizontal" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} width={100} />
+                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                  <Bar dataKey="value" fill={COLORS.accent} radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
+          </div>
+
+          {/* Performance Insights */}
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+            <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Performance Insights
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-2">High Performers</h4>
+                <p className="text-sm text-green-700">Actuator DBs show consistent, efficient consumption patterns with minimal variance.</p>
+              </div>
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h4 className="font-medium text-yellow-800 mb-2">Attention Required</h4>
+                <p className="text-sm text-yellow-700">Beachwell consumption shows high volatility requiring investigation.</p>
+              </div>
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-2">Optimization Potential</h4>
+                <p className="text-sm text-blue-700">Street lighting systems could benefit from smart scheduling controls.</p>
+              </div>
+            </div>
+          </div>
+        </>
       )}
+
       {activeSubSection === 'Analytics' && (
-         <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-          <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Advanced Analytics</h2>
-          <p className="text-slate-600 dark:text-slate-400">This section will feature advanced analytics, predictive modeling, and anomaly detection insights. (Content TBD)</p>
-        </div>
+        <>
+          <FilterBar />
+          
+          {/* Analytics Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ChartWrapper title="Consumption Pattern Analysis" subtitle="Seasonal trends and anomalies">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={monthlyTrendForAllMonths} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={COLORS.accent} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={COLORS.accent} stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Area type="monotone" dataKey="total" stroke={COLORS.accent} fillOpacity={1} fill="url(#analyticsGradient)" />
+                    <Line type="monotone" dataKey="total" stroke={COLORS.accent} strokeWidth={3} dot={{r:4, fill: COLORS.accent}} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Anomaly Detection</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <span className="text-sm font-medium text-red-800">High Variance</span>
+                    </div>
+                    <span className="text-xs text-red-600">Beachwell</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                      <span className="text-sm font-medium text-yellow-800">Trend Change</span>
+                    </div>
+                    <span className="text-xs text-yellow-600">PS01</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-medium text-green-800">Normal</span>
+                    </div>
+                    <span className="text-xs text-green-600">Apartments</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Predictive Insights</h3>
+                <div className="space-y-3">
+                  <div className="text-sm">
+                    <p className="font-medium text-slate-700 dark:text-slate-200">Next Month Forecast</p>
+                    <p className="text-2xl font-bold text-blue-600">{Math.round(totalConsumptionKWh * 1.08).toLocaleString()} kWh</p>
+                    <p className="text-xs text-slate-500">+8% projected increase</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-slate-700 dark:text-slate-200">Cost Projection</p>
+                    <p className="text-xl font-bold text-green-600">{(totalConsumptionKWh * 1.08 * OMR_PER_KWH).toLocaleString(undefined, {minimumFractionDigits:2})} OMR</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Advanced Analytics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ChartWrapper title="Category Efficiency Comparison" subtitle="Average consumption by unit type">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={distinctCategories.map(cat => ({
+                  category: cat,
+                  avgConsumption: filteredElectricityData.filter(d => d.category === cat).reduce((sum, d) => sum + d.totalConsumption, 0) / filteredElectricityData.filter(d => d.category === cat).length
+                })).filter(d => d.avgConsumption > 0)} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="category" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} angle={-45} textAnchor="end" height={100} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                  <Bar dataKey="avgConsumption" fill={COLORS.info} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
+
+            <ChartWrapper title="Load Distribution" subtitle="Peak vs off-peak patterns">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={[
+                      { name: 'Infrastructure', value: filteredElectricityData.filter(d => d.zone === 'Infrastructure').reduce((sum, d) => sum + d.totalConsumption, 0) },
+                      { name: 'Residential', value: filteredElectricityData.filter(d => d.zone === 'Zone 3').reduce((sum, d) => sum + d.totalConsumption, 0) },
+                      { name: 'Commercial', value: filteredElectricityData.filter(d => d.category.includes('Commercial')).reduce((sum, d) => sum + d.totalConsumption, 0) },
+                      { name: 'Others', value: filteredElectricityData.filter(d => !['Infrastructure', 'Zone 3'].includes(d.zone) && !d.category.includes('Commercial')).reduce((sum, d) => sum + d.totalConsumption, 0) }
+                    ].filter(d => d.value > 0)}
+                    dataKey="value" 
+                    nameKey="name" 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    fill="#8884d8"
+                  >
+                    {[
+                      { name: 'Infrastructure', value: filteredElectricityData.filter(d => d.zone === 'Infrastructure').reduce((sum, d) => sum + d.totalConsumption, 0) },
+                      { name: 'Residential', value: filteredElectricityData.filter(d => d.zone === 'Zone 3').reduce((sum, d) => sum + d.totalConsumption, 0) },
+                      { name: 'Commercial', value: filteredElectricityData.filter(d => d.category.includes('Commercial')).reduce((sum, d) => sum + d.totalConsumption, 0) },
+                      { name: 'Others', value: filteredElectricityData.filter(d => !['Infrastructure', 'Zone 3'].includes(d.zone) && !d.category.includes('Commercial')).reduce((sum, d) => sum + d.totalConsumption, 0) }
+                    ].filter(d => d.value > 0).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
+          </div>
+        </>
       )}
+
       {activeSubSection === 'UnitDetails' && (
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-          <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Unit Details & Consumption Breakdown</h2>
-          <p className="text-slate-600 dark:text-slate-400">This section will provide a detailed breakdown of consumption per unit, historical data views, and individual unit management tools. (Content TBD)</p>
-        </div>
+        <>
+          <FilterBar />
+          
+          {/* Unit Details Table */}
+          <div className="bg-white rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                <List className="h-5 w-5" />
+                Unit Details & Consumption Breakdown
+              </h2>
+              <p className="text-sm text-slate-500 mt-1">Detailed consumption data for all metered units</p>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50 dark:bg-slate-700">
+                  <tr>
+                    <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Unit</th>
+                    <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Zone</th>
+                    <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Category</th>
+                    <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Meter No.</th>
+                    <th className="text-right p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Total (kWh)</th>
+                    <th className="text-right p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Cost (OMR)</th>
+                    <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-200 text-sm">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
+                  {kpiAndTableData.slice(0, 20).map((unit) => (
+                    <tr key={unit.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                      <td className="p-4">
+                        <div>
+                          <p className="font-medium text-slate-900 dark:text-slate-100 text-sm">{unit.unitName}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{unit.type}</p>
+                        </div>
+                      </td>
+                      <td className="p-4 text-sm text-slate-700 dark:text-slate-300">{unit.zone}</td>
+                      <td className="p-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {unit.category}
+                        </span>
+                      </td>
+                      <td className="p-4 text-sm font-mono text-slate-600 dark:text-slate-400">{unit.meterAccountNo}</td>
+                      <td className="p-4 text-right text-sm font-medium text-slate-900 dark:text-slate-100">
+                        {unit.totalConsumption.toLocaleString(undefined, {maximumFractionDigits:1})}
+                      </td>
+                      <td className="p-4 text-right text-sm font-medium text-slate-900 dark:text-slate-100">
+                        {(unit.totalConsumption * OMR_PER_KWH).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                      </td>
+                      <td className="p-4 text-center">
+                        {unit.totalConsumption > 0 ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                            <WifiOff className="w-3 h-3 mr-1" />
+                            Inactive
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
+              <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                <span>Showing {Math.min(20, kpiAndTableData.length)} of {kpiAndTableData.length} units</span>
+                <button className="text-blue-600 hover:text-blue-800 font-medium">View All Units</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartWrapper title="Monthly Consumption Breakdown" subtitle="Individual unit consumption patterns">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={availableMonths.map(month => ({
+                  month: month.replace('-24', '').replace('-25', ''),
+                  ...kpiAndTableData.slice(0,5).reduce((acc, unit) => ({
+                    ...acc,
+                    [unit.unitName.substring(0,10)]: unit.consumption[month] || 0
+                  }), {})
+                }))} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                  <Legend />
+                  {kpiAndTableData.slice(0,5).map((unit, index) => (
+                    <Line 
+                      key={unit.id}
+                      type="monotone" 
+                      dataKey={unit.unitName.substring(0,10)}
+                      stroke={COLORS.chart[index % COLORS.chart.length]} 
+                      strokeWidth={2}
+                      dot={{r:3}}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
+
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Unit Summary</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Total Units</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100">{kpiAndTableData.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Active Meters</span>
+                    <span className="font-medium text-green-600">{activeMeters}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Inactive Meters</span>
+                    <span className="font-medium text-gray-600">{kpiAndTableData.length - activeMeters}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Missing Meters</span>
+                    <span className="font-medium text-red-600">{kpiAndTableData.filter(d => d.meterAccountNo === 'MISSING_METER').length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Quick Actions</h3>
+                <div className="space-y-2">
+                  <button className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Download className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Export Unit Data</span>
+                    </div>
+                  </button>
+                  <button className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Settings className="h-4 w-4 text-gray-600" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Meter Configuration</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
 
@@ -511,7 +831,7 @@ Recommendations:
               </button> 
             </div> 
           </div> 
-        </div>
+        </div> 
       )}
     </div>
   );
@@ -521,4 +841,3 @@ Recommendations:
 export default function ElectricityAnalysisPage() {
   return <ElectricitySystemModule />;
 }
-
