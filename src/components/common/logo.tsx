@@ -19,7 +19,7 @@ export default function Logo({ size = 32, className }: LogoProps) {
         data-ai-hint="company logo brand"
       />
       <span className="font-headline text-xl font-semibold text-primary group-data-[collapsible=icon]/sidebar:hidden">
-        Muscat Bay - Assets &amp; Operation
+        Muscat Bay Logo
       </span>
     </div>
   );
