@@ -10,15 +10,13 @@ interface AnimatedAppShellProps {
 
 export default function AnimatedAppShell({ children }: AnimatedAppShellProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="flex h-screen w-screen flex-row">
-        <SessionNavBar />
-        <main className="flex h-screen grow flex-col overflow-auto ml-12">
-          <div className="flex-1 p-4 md:p-6 lg:p-8">
-            {children}
-          </div>
-        </main>
-      </div>
+    <div className="min-h-screen bg-gray-50/50">
+      <SessionNavBar />
+      <main className="ml-20 min-h-screen transition-all duration-300 ease-in-out">
+        <div className="h-full p-6">
+          {children}
+        </div>
+      </main>
       <Toaster />
     </div>
   );
