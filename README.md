@@ -1,40 +1,37 @@
-# 🌊 Muscat Bay Operations Hub
+# 🏗️ Muscat Bay Operations Hub
 
-A modern, responsive web application for showcasing operational data and analytics for Muscat Bay. Built with Next.js 15, TypeScript, Tailwind CSS, and shadcn/ui components.
+A comprehensive **modern SAAS-style operations management system** for Muscat Bay's utilities and infrastructure. Built with **Next.js 15**, **TypeScript**, **Tailwind CSS**, and **Recharts** for advanced data visualization and analytics.
 
-![Muscat Bay Operations Hub](https://img.shields.io/badge/Status-Live-green?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)
-![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Muscat Bay Operations](./IMG_3418.jpeg)
 
-## ✨ Features
+## 🌟 Features
 
-### 🎨 Modern Navigation System
-- **Responsive Design**: Seamlessly adapts from desktop to mobile with collapsible hamburger menu
-- **Muscat Bay Branding**: Custom color palette (#4E4456, #A8D5E3, etc.) with gradients and modern effects
-- **Interactive Elements**: Hover effects, active states, smooth transitions, and shimmer animations
-- **User Experience**: Search functionality, notification badges, and professional user profile section
+### 📊 **Comprehensive Analytics Modules**
+- **⚡ Electricity Analysis** - Power consumption tracking, cost analysis, and efficiency monitoring
+- **💧 Water Management** - Hierarchical water distribution analysis with loss detection
+- **🏭 STP Plant Operations** - Sewage treatment performance and capacity utilization
+- **👥 Contractor Tracking** - Contract management, expiry alerts, and performance monitoring
+- **🤖 AI-Powered Analytics** - Automated insights and anomaly detection
 
-### 🏗️ Architecture
-- **Next.js 15 App Router**: Modern file-based routing with server components
-- **TypeScript**: Full type safety and enhanced developer experience
-- **Tailwind CSS**: Utility-first styling with custom Muscat Bay design tokens
-- **shadcn/ui Components**: Accessible, customizable UI components
-- **Responsive Layout**: Mobile-first design with desktop optimization
+### 🎨 **Modern Design System**
+- **Muscat Bay Brand Colors** - Professional purple-gray palette (#4E4456)
+- **Responsive Design** - Mobile-first approach with Tailwind CSS
+- **Interactive Charts** - Advanced visualizations with Recharts
+- **Component Library** - Reusable UI components with Radix UI
 
-### 📊 Operational Modules
-- **Dashboard**: Overview of all systems with KPIs and alerts
-- **Electricity Analysis**: Power consumption & efficiency analytics
-- **Water Analysis**: Water distribution & loss monitoring
-- **STP Plant**: Sewage treatment performance tracking
-- **Contractor Tracker**: Contractor management & tracking
-- **Anomaly Detection**: AI-powered anomaly alerts
+### 🛠️ **Technical Excellence**
+- **Next.js 15** with Turbopack for ultra-fast development
+- **TypeScript** for type safety and better developer experience
+- **Real Data Integration** - Actual operational data from Muscat Bay
+- **Firebase Integration** - Cloud-based data storage and authentication
+- **AI/ML Capabilities** - GenKit integration for intelligent insights
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn
+- Git
 
 ### Installation
 
@@ -50,146 +47,199 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:9002` to see the application.
+The application will be available at `http://localhost:9002`
 
-### Build for Production
+### Available Scripts
 
 ```bash
-# Build the application
-npm run build
-
-# Start production server
-npm start
+npm run dev          # Start development server with Turbopack
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run typecheck    # TypeScript type checking
+npm run genkit:dev   # Start GenKit AI development
+npm run genkit:watch # Start GenKit with watch mode
 ```
 
-## 🎨 Design System
-
-### Color Palette
-The application uses a carefully crafted color palette inspired by the Muscat Bay branding:
-
-```css
-/* Primary Colors */
---muscat-bay-primary: #4E4456        /* Main brand color */
---muscat-bay-primary-light: #5f5168  /* Lighter variant */
---muscat-bay-primary-dark: #3B3241   /* Darker variant */
-
-/* Accent Colors */
---muscat-bay-accent: #A8D5E3         /* Soft teal for highlights */
---muscat-bay-accent-light: #C3FBF4   /* Light teal variant */
---muscat-bay-gold: #BFA181           /* Muted gold */
---muscat-bay-navy: #0A1828           /* Deep navy */
-```
-
-### Gradients
-- **Primary Gradient**: `linear-gradient(135deg, #4E4456 0%, #5f5168 50%, #3B3241 100%)`
-- **Accent Gradient**: `linear-gradient(135deg, #A8D5E3 0%, #C3FBF4 100%)`
-- **Glass Effect**: `backdrop-blur(10px)` with subtle transparency
-
-### Typography
-- **Primary Font**: Inter (imported from Google Fonts)
-- **Font Weights**: 400 (Regular), 500 (Medium), 600 (Semibold), 700 (Bold)
-- **Responsive Sizing**: Optimized for all screen sizes
-
-## 📱 Navigation Features
-
-### Desktop Experience
-- **Horizontal Navigation**: Clean, professional navigation bar
-- **Search Integration**: Global search functionality
-- **User Profile**: Professional user avatar and role display
-- **Notifications**: Badge-based notification system
-- **Active States**: Clear indication of current page
-
-### Mobile Experience
-- **Hamburger Menu**: Smooth animated menu toggle
-- **Collapsible Panel**: Full-screen navigation overlay
-- **Touch Optimization**: Large tap targets and touch-friendly interactions
-- **Responsive Layout**: Optimized for all mobile screen sizes
-
-### Interactive Elements
-- **Hover Effects**: Subtle animations and color transitions
-- **Shimmer Animations**: Modern loading and interaction feedback
-- **Active States**: Clear visual feedback for current page
-- **Micro-animations**: Floating logo, smooth transitions
-
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── (app)/             # Grouped routes
-│   │   ├── dashboard/     # Dashboard page
-│   │   ├── electricity-analysis/
-│   │   ├── water-analysis/
-│   │   ├── stp-plant/
-│   │   ├── contractor-tracker/
-│   │   ├── anomaly-detection/
-│   │   └── layout.tsx     # App pages layout
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx          # Homepage (redirects to dashboard)
-├── components/
-│   ├── layout/           # Layout components
-│   │   ├── modern-navbar.tsx
-│   │   ├── modern-app-shell.tsx
-│   │   └── app-shell.tsx (legacy)
-│   ├── ui/              # shadcn/ui components
-│   └── common/          # Shared components
-├── lib/                 # Utilities
-└── hooks/              # Custom React hooks
+├── app/                      # Next.js 15 App Router
+│   ├── (app)/               # Route group for main application
+│   │   ├── dashboard/       # Main dashboard
+│   │   ├── electricity-analysis/  # Power consumption module
+│   │   ├── water-analysis/  # Water management module
+│   │   ├── stp-plant/       # STP operations module
+│   │   ├── contractor-tracker/    # Contract management
+│   │   └── anomaly-detection/     # AI anomaly detection
+│   ├── globals.css         # Global styles
+│   └── layout.tsx          # Root layout
+│
+├── components/              # Reusable UI components
+│   ├── common/             # Shared components (SummaryCard, ChartWrapper, etc.)
+│   ├── layout/             # Layout components (Sidebar, Header)
+│   ├── ui/                 # Base UI primitives (Radix UI)
+│   └── demo/               # Demo components
+│
+├── lib/                    # Core utilities and configuration
+│   ├── types/              # TypeScript type definitions
+│   ├── constants/          # Application constants and configuration
+│   ├── utils/              # Utility functions and helpers
+│   └── data/               # Data stores and parsers
+│       ├── index.ts        # Main data store with raw operational data
+│       └── contractors.ts  # Enhanced contractor data with analytics
+│
+├── hooks/                  # Custom React hooks
+├── ai/                     # AI/ML integration (GenKit)
+└── ...
 ```
 
-## 🔧 Configuration
+## 🎯 Modules Overview
 
-### Tailwind Configuration
-The project includes a comprehensive Tailwind configuration with:
-- Custom Muscat Bay color tokens
-- Modern gradients and effects
-- Custom animations (shimmer, float)
-- Extended typography and spacing
+### ⚡ Electricity Analysis
+- **Real-time consumption tracking** for 56 electrical meters
+- **Cost analysis** with OMR 0.025/kWh rate
+- **Category-wise breakdown** (Pumping Stations, Street Lights, Apartments, etc.)
+- **Trend analysis** and AI-powered insights
+- **Interactive filtering** by month, category, and unit
 
-### Environment Setup
-The project is configured for development with:
-- **Port**: 9002 (configurable in package.json)
-- **Turbopack**: Enabled for faster development builds
-- **TypeScript**: Strict type checking
-- **ESLint**: Code quality and consistency
+### 💧 Water Analysis  
+- **Hierarchical water system monitoring** (A1→A2→A3 levels)
+- **Loss detection** between distribution stages
+- **28 water meters** across zones and meter types
+- **Efficiency calculations** and variance analysis
+- **Quality metrics** and pressure monitoring
 
-## 🎯 Usage Guidelines
+### 🏭 STP Plant Operations
+- **Daily treatment performance** tracking
+- **Capacity utilization** against 750 m³/day design capacity
+- **TSE production** for irrigation reuse
+- **Tanker vs. direct sewage** input analysis
+- **Treatment efficiency** monitoring (target >90%)
 
-### Adding New Pages
-1. Create a new directory in `src/app/(app)/`
-2. Add `page.tsx` for the route component
-3. Update navigation in `src/components/layout/modern-navbar.tsx`
+### 👥 Contractor Tracking
+- **17 active contractors** with comprehensive data
+- **Contract expiry alerts** and renewal tracking
+- **Financial analysis** - Total yearly value: ~450,000 OMR
+- **Service categorization** and performance metrics
+- **Status management** (Active, Expired, Pending, Suspended)
 
-### Customizing Colors
-1. Update color tokens in `tailwind.config.ts`
-2. Modify gradients and effects as needed
-3. Test across all components for consistency
+## 💡 Key Features
 
-### Mobile Responsiveness
-- Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`)
-- Test on multiple device sizes
-- Ensure touch targets are at least 44px
+### 🔥 **Advanced Analytics**
+- **AI-powered insights** with automated recommendations
+- **Trend analysis** and predictive analytics
+- **Performance benchmarking** against targets
+- **Anomaly detection** for early issue identification
+
+### 📱 **Responsive Design** 
+- **Mobile-optimized** interface
+- **Progressive Web App** capabilities
+- **Offline support** for critical data
+- **Touch-friendly** interactions
+
+### 🎨 **Professional UI/UX**
+- **Muscat Bay branding** throughout
+- **Consistent design system** 
+- **Intuitive navigation** with breadcrumbs
+- **Loading states** and error handling
+
+### 🔒 **Enterprise Ready**
+- **TypeScript** for type safety
+- **ESLint** and **Prettier** for code quality
+- **Firebase** integration for scalability
+- **Production-optimized** builds
+
+## 🛠️ Development
+
+### Code Structure Guidelines
+
+#### **TypeScript Types**
+All types are defined in `src/lib/types/index.ts`:
+```typescript
+import { ElectricityConsumption, WaterSystemData, STPPlantData } from '@/lib/types';
+```
+
+#### **Constants & Configuration**
+Centralized in `src/lib/constants/index.ts`:
+```typescript
+import { MUSCAT_BAY_COLORS, PLANT_SPECIFICATIONS } from '@/lib/constants';
+```
+
+#### **Utility Functions**
+Helper functions in `src/lib/utils/index.ts`:
+```typescript
+import { utils } from '@/lib/utils';
+const parsedData = utils.parseElectricityData(rawData);
+```
+
+#### **Shared Components**
+Reusable UI components in `src/components/common/index.tsx`:
+```typescript
+import { SummaryCard, ChartWrapper, StatusBadge } from '@/components/common';
+```
+
+### Adding New Modules
+
+1. Create route in `src/app/(app)/your-module/`
+2. Add types to `src/lib/types/index.ts`
+3. Add constants to `src/lib/constants/index.ts`
+4. Create data parser in `src/lib/utils/index.ts`
+5. Add navigation entry to constants
+6. Implement UI using shared components
+
+## 📊 Data Sources
+
+### Real Operational Data
+- **Electricity consumption** - 6 months of actual meter readings
+- **Water distribution** - 22 months of hierarchical flow data  
+- **STP performance** - Daily treatment data from July 2024-May 2025
+- **Contractor information** - Complete contract database with financials
+
+### Data Processing
+- **Automatic parsing** from CSV/raw formats
+- **Type-safe** data structures
+- **Real-time calculations** for KPIs and analytics
+- **Caching** for performance optimization
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+npm run build
+npm run start
+```
+
+### Environment Variables
+Create `.env.local`:
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+```
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** changes: `git commit -m 'Add amazing feature'`
+4. **Push** to branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
 
-## 📄 License
+## 📝 License
 
-This project is proprietary software for Muscat Bay operations.
+This project is proprietary software for **Muscat Bay Operations**. All rights reserved.
 
 ## 🆘 Support
 
-For technical support or questions:
-- Create an issue in this repository
-- Contact the development team
-- Check the documentation in `/docs`
+For support and questions:
+- **Repository Issues**: [GitHub Issues](https://github.com/ARahim900/muscat-operations-hub/issues)
+- **Documentation**: See `/docs` folder for detailed guides
+- **Email**: Contact the development team
 
 ---
 
-**Built with ❤️ for Muscat Bay Operations**
+**Built with ❤️ for Muscat Bay Operations Team**
+
+*Modern Operations Management • Real-time Analytics • AI-Powered Insights*
