@@ -1,9 +1,9 @@
-import AppShell from '@/components/layout/app-shell';
+import ModernAppShell from '@/components/layout/modern-app-shell';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Dashboard - Muscat Operations Hub',
-  description: 'Operational data dashboard.',
+  title: 'Dashboard - Muscat Bay Operations Hub',
+  description: 'Modern operational data dashboard with advanced analytics and monitoring.',
 };
 
 export default function AppPagesLayout({
@@ -11,5 +11,5 @@ export default function AppPagesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AppShell>{children}</AppShell>;
+  return <ModernAppShell>{children}</ModernAppShell>;
 }
