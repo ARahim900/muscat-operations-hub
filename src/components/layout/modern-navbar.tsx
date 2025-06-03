@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { 
   Bolt, 
@@ -18,10 +19,17 @@ import {
   Settings,
   Search,
   ChevronDown,
-  Zap
+  Zap,
+  LayoutDashboard
 } from 'lucide-react';
 
 const navigationItems = [
+  { 
+    href: '/dashboard', 
+    label: 'Dashboard', 
+    icon: LayoutDashboard,
+    description: 'Operations overview & KPIs'
+  },
   { 
     href: '/electricity-analysis', 
     label: 'Electricity Analysis', 
@@ -83,7 +91,7 @@ export default function ModernNavbar({ children }: ModernNavbarProps) {
                 <Zap className="h-5 w-5 lg:h-6 lg:w-6 text-muscat-bay-primary" />
               </div>
               <div className="hidden sm:block">
-                <Link href="/" className="group">
+                <Link href="/dashboard" className="group">
                   <h1 className="text-lg lg:text-xl font-bold text-white group-hover:text-muscat-bay-accent transition-colors duration-200">
                     Muscat Bay Operations
                   </h1>
@@ -93,7 +101,7 @@ export default function ModernNavbar({ children }: ModernNavbarProps) {
                 </Link>
               </div>
               <div className="sm:hidden">
-                <Link href="/" className="text-lg font-bold text-white">
+                <Link href="/dashboard" className="text-lg font-bold text-white">
                   Muscat Bay
                 </Link>
               </div>
@@ -145,9 +153,9 @@ export default function ModernNavbar({ children }: ModernNavbarProps) {
                 className="relative text-white hover:bg-white/10 hover:text-muscat-bay-accent transition-colors duration-200"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-white">3</span>
-                </span>
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs border-2 border-white">
+                  3
+                </Badge>
               </Button>
 
               {/* User Profile */}
@@ -234,9 +242,9 @@ export default function ModernNavbar({ children }: ModernNavbarProps) {
                     className="relative text-white hover:bg-white/10"
                   >
                     <Bell className="h-5 w-5" />
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-white">3</span>
-                    </span>
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs border-2 border-white">
+                      3
+                    </Badge>
                   </Button>
                   <Button
                     variant="ghost"
