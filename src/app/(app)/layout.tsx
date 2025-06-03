@@ -1,4 +1,4 @@
-import AppShell from '@/components/layout/app-shell';
+import AnimatedAppShell from '@/components/layout/animated-app-shell';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -11,5 +11,5 @@ export default function AppPagesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AppShell>{children}</AppShell>;
+  return <AnimatedAppShell>{children}</AnimatedAppShell>;
 }
