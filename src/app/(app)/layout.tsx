@@ -1,4 +1,4 @@
-import ModernAppShell from '@/components/layout/modern-app-shell';
+import AppShell from '@/components/layout/app-shell';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -11,5 +11,5 @@ export default function AppPagesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <ModernAppShell>{children}</ModernAppShell>;
+  return <AppShell>{children}</AppShell>;
 }
