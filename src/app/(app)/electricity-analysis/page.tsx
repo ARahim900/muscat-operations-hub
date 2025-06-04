@@ -107,7 +107,7 @@ const extractCategory = (unitName: string | undefined | null) => {
     return 'Other';
 };
 
-const parseData = (rawData) => {
+const parseData = (rawData: string) => {
   const lines = rawData.split('\n');
   const headerLine = lines[0].split('\t').map(h => h.trim());
   const dataLines = lines.slice(1);
@@ -125,7 +125,7 @@ const parseData = (rawData) => {
       unitName: unitName,
       category: extractCategory(unitName),
       meterAccountNo: values[5]?.trim() || 'N/A',
-      consumption: {},
+      consumption: {} as Record<string, number>,
       totalConsumption: 0, 
     };
     let currentOverallTotal = 0;
@@ -149,7 +149,7 @@ const availableMonths = initialElectricityData.length > 0 && initialElectricityD
 // SHARED COMPONENTS
 // ===============================
 
-const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }) => {
+const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }: any) => {
   const IconComponent = icon;
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
@@ -176,7 +176,7 @@ const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor,
   );
 };
 
-const ChartWrapper = ({ title, children, subtitle, actions }) => (
+const ChartWrapper = ({ title, children, subtitle, actions }: any) => (
   <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
     <div className="flex justify-between items-start mb-4">
       <div>
@@ -191,7 +191,7 @@ const ChartWrapper = ({ title, children, subtitle, actions }) => (
   </div>
 );
 
-const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disabled }) => {
+const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disabled }: any) => {
     return (
         <div>
             <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">{label}</label>
@@ -202,9 +202,9 @@ const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disable
                   onChange={onChange} 
                   disabled={disabled}
                   className="appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-primaryLight" 
-                  style={{ '--tw-ring-color': COLORS.primaryLight, ringColor: COLORS.primaryLight }} 
+                  style={{ '--tw-ring-color': COLORS.primaryLight, ringColor: COLORS.primaryLight } as any} 
                 >
-                    {options.map(option => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
+                    {options.map((option: any) => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 dark:text-slate-400">
                     {Icon ? <Icon size={16} /> : <ChevronDown size={16} />}
@@ -276,7 +276,7 @@ const ElectricitySystemModule = () => {
 
   const consumptionByTypeChartData = useMemo(() => {
     const dataToUse = kpiAndTableData; 
-    const typeData = {};
+    const typeData: Record<string, number> = {};
     dataToUse.forEach(d => { typeData[d.type] = (typeData[d.type] || 0) + d.totalConsumption; });
     return Object.entries(typeData).map(([name, value]) => ({ name, value: parseFloat(value.toFixed(2)) })).filter(item => item.value > 0).sort((a,b) => b.value - a.value);
   }, [kpiAndTableData]);
@@ -354,7 +354,7 @@ Recommendations:
                   id="monthFilter" 
                   label="Filter by Month" 
                   value={selectedMonth} 
-                  onChange={(e) => setSelectedMonth(e.target.value)} 
+                  onChange={(e: any) => setSelectedMonth(e.target.value)} 
                   options={monthOptions} 
                   icon={CalendarDays}
                 />
@@ -362,7 +362,7 @@ Recommendations:
                   id="categoryFilter" 
                   label="Filter by Unit Category" 
                   value={selectedCategory} 
-                  onChange={(e) => setSelectedCategory(e.target.value)} 
+                  onChange={(e: any) => setSelectedCategory(e.target.value)} 
                   options={categoryOptions} 
                   icon={List}
                 />
@@ -725,118 +725,4 @@ Recommendations:
                   month: month.replace('-24', '').replace('-25', ''),
                   ...kpiAndTableData.slice(0,5).reduce((acc, unit) => ({
                     ...acc,
-                    [unit.unitName.substring(0,10)]: unit.consumption[month] || 0
-                  }), {})
-                }))} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
-                  <Legend />
-                  {kpiAndTableData.slice(0,5).map((unit, index) => (
-                    <Line 
-                      key={unit.id}
-                      type="monotone" 
-                      dataKey={unit.unitName.substring(0,10)}
-                      stroke={COLORS.chart[index % COLORS.chart.length]} 
-                      strokeWidth={2}
-                      dot={{r:3}}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartWrapper>
-
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Unit Summary</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Total Units</span>
-                    <span className="font-medium text-slate-900 dark:text-slate-100">{kpiAndTableData.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Active Meters</span>
-                    <span className="font-medium text-green-600">{activeMeters}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Inactive Meters</span>
-                    <span className="font-medium text-gray-600">{kpiAndTableData.length - activeMeters}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Missing Meters</span>
-                    <span className="font-medium text-red-600">{kpiAndTableData.filter(d => d.meterAccountNo === 'MISSING_METER').length}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Quick Actions</h3>
-                <div className="space-y-2">
-                  <button className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Download className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Export Unit Data</span>
-                    </div>
-                  </button>
-                  <button className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Settings className="h-4 w-4 text-gray-600" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Meter Configuration</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-
-      {isAiModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 print:hidden"> 
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-y-auto dark:bg-slate-800"> 
-            <div className="flex justify-between items-center mb-4"> 
-              <h3 className="text-xl font-semibold" style={{color: COLORS.primary}}>✨ AI Consumption Analysis</h3> 
-              <button onClick={() => setIsAiModalOpen(false)} className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"> 
-                <X size={20} className="text-slate-600 dark:text-slate-300"/> 
-              </button> 
-            </div> 
-            {isAiLoading ? ( 
-              <div className="text-center py-8"> 
-                <Sparkles size={48} className="mx-auto animate-pulse" style={{color: COLORS.primaryLight}} /> 
-                <p className="mt-2 text-slate-600 dark:text-slate-400">AI is analyzing data, please wait...</p> 
-              </div> 
-            ) : ( 
-              <div className="text-sm text-slate-700 space-y-3 whitespace-pre-wrap dark:text-slate-300"> 
-                {aiAnalysisResult ? ( 
-                  aiAnalysisResult.split('\n').map((line, index) => ( 
-                    <p key={index}>{line.startsWith('* ') || line.startsWith('- ') ? `• ${line.substring(2)}` : line}</p> 
-                  )) 
-                ) : ( 
-                  <p>No analysis available or an error occurred.</p> 
-                )} 
-              </div> 
-            )} 
-            <div className="mt-6 text-right"> 
-              <button 
-                onClick={() => setIsAiModalOpen(false)} 
-                className="text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors" 
-                style={{ backgroundColor: COLORS.primary }} 
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = COLORS.primaryDark} 
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = COLORS.primary}
-              > 
-                Close 
-              </button> 
-            </div> 
-          </div> 
-        </div> 
-      )}
-    </div>
-  );
-};
-
-
-export default function ElectricityAnalysisPage() {
-  return <ElectricitySystemModule />;
-}
+                
