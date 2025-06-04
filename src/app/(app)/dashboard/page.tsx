@@ -125,8 +125,7 @@ export default function DashboardPage() {
               <div className="text-2xl font-bold text-slate-900">{kpi.value}</div>
               <div className="flex items-center space-x-1 text-sm">
                 <span className={
-                  kpi.changeType === 'increase' ? 'text-green-600' :
-                  kpi.changeType === 'decrease' ? 'text-red-600' : 'text-slate-600'
+                  kpi.changeType === 'increase' ? 'text-green-600' : 'text-slate-600'
                 }>
                   {kpi.change}
                 </span>
