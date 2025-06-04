@@ -15,15 +15,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Remove error ignoring to catch real issues
-  // typescript: {
-  //   ignoreBuildErrors: true,
-  // },
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // },
   
-  // Add proper error handling
+  // Remove error ignoring to catch real issues
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -33,7 +26,6 @@ const nextConfig: NextConfig = {
   },
   
   // Optimize for production
-  swcMinify: true,
   poweredByHeader: false,
   
   // Environment variables for build
@@ -41,28 +33,8 @@ const nextConfig: NextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY || '',
   },
   
-  // Headers for security
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
-      },
-    ];
-  },
+  // Note: Headers don't work with static export, handled by Netlify instead
+  // Headers are configured in netlify.toml
 };
 
 export default nextConfig;
