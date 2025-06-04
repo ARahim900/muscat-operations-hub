@@ -1,11 +1,12 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
+  // Remove static export - let Netlify handle it with their runtime
+  // output: 'export',
+  
   images: {
-    unoptimized: true, // Required for static export
+    // Remove unoptimized for better performance with Netlify
+    // unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -16,7 +17,7 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // Remove error ignoring to catch real issues
+  // Enable TypeScript and ESLint checking
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -32,9 +33,6 @@ const nextConfig: NextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY || '',
   },
-  
-  // Note: Headers don't work with static export, handled by Netlify instead
-  // Headers are configured in netlify.toml
 };
 
 export default nextConfig;
