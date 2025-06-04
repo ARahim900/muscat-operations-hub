@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -88,7 +87,7 @@ const rawDataString = `SL:no.	Zone	Type 	Muscat Bay Number	Unit Number (Muncipal
 55		SBJ Common Meter		Bank muscat	MISSING_METER	148	72	59	98	88	163
 56		SBJ Common Meter		CIF kitchen	MISSING_METER	16742	15554	16788	16154	14971	18446`.trim();
 
-const extractCategory = (unitName) => {
+const extractCategory = (unitName: string | undefined | null) => {
     if (!unitName) return 'Other';
     const lowerUnitName = unitName.toLowerCase();
     if (lowerUnitName.includes('pumping station')) return 'Pumping Station';
