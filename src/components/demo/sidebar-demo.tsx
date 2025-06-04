@@ -1,6 +1,7 @@
 "use client";
 
-import { SessionNavBar } from "@/components/ui/session-sidebar"
+import React from "react";
+import { SessionNavBar } from "@/components/ui/session-sidebar";
 
 export function SidebarDemo() {
   return (
