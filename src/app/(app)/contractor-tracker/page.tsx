@@ -245,7 +245,7 @@ export default function ContractorTrackerPage() {
     };
   }, [filteredContractors]);
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     const config = {
       'Active': { color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
       'Expired': { color: 'bg-red-100 text-red-800 border-red-200', icon: AlertTriangle }
@@ -260,12 +260,12 @@ export default function ContractorTrackerPage() {
     );
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     if (!amount) return 'N/A';
     return `${amount.toLocaleString()} OMR`;
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string | null) => {
     if (!dateString) return 'TBD';
     return new Date(dateString).toLocaleDateString('en-GB');
   };
