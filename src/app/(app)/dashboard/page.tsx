@@ -30,9 +30,9 @@ export default function DashboardPage() {
     },
     {
       title: "Water Usage",
-      value: "15,230 m³",
-      change: "-2.1%",
-      changeType: "decrease" as const,
+      value: "45,863 m³", // Updated value for April 2025
+      change: "+15.9%", // Calculated change from March 2025
+      changeType: "increase" as const, // Change type is increase
       icon: Droplets,
       color: "text-teal-600",
       bgColor: "bg-teal-50"
