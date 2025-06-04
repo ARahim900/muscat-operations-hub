@@ -130,5 +130,18 @@ export default {
       },
     },
   },
+  safelist: [
+    // Safelist Muscat Bay colors to ensure they're generated
+    'text-muscat-bay-primary',
+    'bg-muscat-bay-primary',
+    'hover:bg-muscat-bay-primary-dark',
+    'border-muscat-bay-accent',
+    'hover:border-muscat-bay-accent',
+    'hover:text-muscat-bay-primary',
+    'hover:bg-muscat-bay-accent',
+    'shadow-muscat',
+    'bg-muscat-bay-primary-dark',
+    // Add any other custom classes you're using
+  ],
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
