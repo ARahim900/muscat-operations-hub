@@ -10,10 +10,8 @@ import {
   Search, 
   Filter, 
   Download, 
-  Calendar, 
   DollarSign, 
   Users, 
-  Clock, 
   AlertTriangle, 
   CheckCircle, 
   FileText,
@@ -24,8 +22,24 @@ import {
   Activity
 } from 'lucide-react';
 
+// Type definitions
+interface ContractorData {
+  id: number;
+  contractor: string;
+  service: string;
+  status: 'Active' | 'Expired';
+  contractType: string;
+  startDate: string | null;
+  endDate: string | null;
+  monthlyRate: number;
+  yearlyTotal: number;
+  vatStatus: string;
+  notes: string;
+  category: string;
+}
+
 // Contractor data based on your operational requirements
-const contractorData = [
+const contractorData: ContractorData[] = [
   {
     id: 1,
     contractor: "KONE Assarain LLC",
@@ -196,20 +210,10 @@ const contractorData = [
   }
 ];
 
-const COLORS = {
-  primary: '#4E4456',
-  primaryLight: '#7E708A',
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6'
-};
-
 export default function ContractorTrackerPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [selectedContractor, setSelectedContractor] = useState(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   // Get unique categories for filter
   const categories = useMemo(() => 
@@ -246,7 +250,7 @@ export default function ContractorTrackerPage() {
   }, [filteredContractors]);
 
   const getStatusBadge = (status: string) => {
-    const config: Record<string, { color: string; icon: any }> = {
+    const config: Record<string, { color: string; icon: React.ComponentType<{ size: number }> }> = {
       'Active': { color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
       'Expired': { color: 'bg-red-100 text-red-800 border-red-200', icon: AlertTriangle }
     };
@@ -260,12 +264,12 @@ export default function ContractorTrackerPage() {
     );
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number): string => {
     if (!amount) return 'N/A';
     return `${amount.toLocaleString()} OMR`;
   };
 
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'TBD';
     return new Date(dateString).toLocaleDateString('en-GB');
   };
