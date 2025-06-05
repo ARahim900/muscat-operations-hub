@@ -19,7 +19,8 @@ import {
   Edit,
   MoreHorizontal,
   Building,
-  Activity
+  Activity,
+  LucideIcon
 } from 'lucide-react';
 
 // Type definitions
@@ -250,7 +251,7 @@ export default function ContractorTrackerPage() {
   }, [filteredContractors]);
 
   const getStatusBadge = (status: string) => {
-    const config: Record<string, { color: string; icon: React.ComponentType<{ size: number }> }> = {
+    const config: Record<string, { color: string; icon: LucideIcon }> = {
       'Active': { color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
       'Expired': { color: 'bg-red-100 text-red-800 border-red-200', icon: AlertTriangle }
     };
