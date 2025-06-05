@@ -229,8 +229,7 @@ const StyledSelect: React.FC<StyledSelectProps> = ({ label, value, onChange, opt
                   value={value} 
                   onChange={onChange} 
                   disabled={disabled}
-                  className="appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-primaryLight" 
-                  style={{ '--tw-ring-color': COLORS.primaryLight, ringColor: COLORS.primaryLight }} 
+                  className="appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-purple-400"
                 >
                     {options.map(option => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
                 </select>
@@ -245,11 +244,10 @@ const StyledSelect: React.FC<StyledSelectProps> = ({ label, value, onChange, opt
 const LoadingSpinner = ({ size = 24 }: { size?: number }) => (
   <div className="flex justify-center items-center">
     <div 
-      className="animate-spin rounded-full border-4 border-slate-200 border-t-primary dark:border-slate-700" 
+      className="animate-spin rounded-full border-4 border-slate-200 border-t-purple-600 dark:border-slate-700" 
       style={{
         width: size,
         height: size,
-        borderTopColor: COLORS.primary
       }}
     ></div>
   </div>
@@ -451,10 +449,10 @@ Recommendations:
                           <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/> 
                         </linearGradient> 
                       </defs> 
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" /> 
-                      <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} /> 
-                      <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} /> 
-                      <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} itemStyle={{color: 'var(--foreground)'}} labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}/> 
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /> 
+                      <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} /> 
+                      <YAxis tick={{ fontSize: 12, fill: '#64748b' }} /> 
+                      <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} itemStyle={{color: '#334155'}} labelStyle={{color: '#0f172a', fontWeight: 'bold'}}/> 
                       <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/> 
                       <Area type="monotone" dataKey="total" stroke={COLORS.primary} fillOpacity={1} fill="url(#colorTotalElectricity)" /> 
                       <Line type="monotone" dataKey="total" stroke={COLORS.primary} strokeWidth={3} activeDot={{ r: 7, strokeWidth: 2, fill: COLORS.primary }} dot={{r:4, fill: COLORS.primary}} name="Total kWh" /> 
@@ -473,7 +471,7 @@ Recommendations:
                         <RechartsLabel value={`${consumptionByTypeChartData.reduce((sum, item) => sum + item.value, 0).toLocaleString(undefined, {maximumFractionDigits:0})}`} position="centerBottom" dy={-5} className="text-2xl font-bold fill-slate-700 dark:fill-slate-200"/> 
                         <RechartsLabel value="Total kWh" position="centerTop" dy={10} className="text-xs fill-slate-500 dark:fill-slate-400"/> 
                       </Pie> 
-                      <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} itemStyle={{color: 'var(--foreground)'}} labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}/> 
+                      <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} itemStyle={{color: '#334155'}} labelStyle={{color: '#0f172a', fontWeight: 'bold'}}/> 
                       <Legend verticalAlign="bottom" wrapperStyle={{paddingTop: '15px'}}/> 
                     </PieChart> 
                   </ResponsiveContainer> 
@@ -500,10 +498,10 @@ Recommendations:
               <ChartWrapper title="Monthly Performance Comparison" subtitle="Efficiency metrics over time">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyTrendForAllMonths} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} />
                     <Legend />
                     <Bar dataKey="total" fill={COLORS.primary} name="Total Consumption (kWh)" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -513,10 +511,10 @@ Recommendations:
               <ChartWrapper title="Top 10 Consumers" subtitle="Highest consumption units">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={filteredElectricityData.sort((a,b) => b.totalConsumption - a.totalConsumption).slice(0,10).map(d => ({name: d.unitName.length > 15 ? d.unitName.substring(0,15) + '...' : d.unitName, value: d.totalConsumption}))} layout="horizontal" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
-                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} width={100} />
-                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} />
+                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#64748b' }} width={100} />
+                    <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} />
                     <Bar dataKey="value" fill={COLORS.accent} radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -563,10 +561,10 @@ Recommendations:
                           <stop offset="95%" stopColor={COLORS.accent} stopOpacity={0.1}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                      <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                      <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                      <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} />
+                      <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
+                      <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} />
                       <Area type="monotone" dataKey="total" stroke={COLORS.accent} fillOpacity={1} fill="url(#analyticsGradient)" />
                       <Line type="monotone" dataKey="total" stroke={COLORS.accent} strokeWidth={3} dot={{r:4, fill: COLORS.accent}} />
                     </LineChart>
@@ -627,10 +625,10 @@ Recommendations:
                     category: cat,
                     avgConsumption: filteredElectricityData.filter(d => d.category === cat).reduce((sum, d) => sum + d.totalConsumption, 0) / filteredElectricityData.filter(d => d.category === cat).length
                   })).filter(d => d.avgConsumption > 0)} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="category" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} angle={-45} textAnchor="end" height={100} />
-                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="category" tick={{ fontSize: 11, fill: '#64748b' }} angle={-45} textAnchor="end" height={100} />
+                    <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} />
                     <Bar dataKey="avgConsumption" fill={COLORS.info} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -662,7 +660,7 @@ Recommendations:
                         <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -758,10 +756,10 @@ Recommendations:
                       [unit.unitName.substring(0,10)]: unit.consumption[month] || 0
                     }), {})
                   }))} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'white', borderRadius: '8px', borderColor: '#e2e8f0'}} />
                     <Legend />
                     {kpiAndTableData.slice(0,5).map((unit, index) => (
                       <Line 
