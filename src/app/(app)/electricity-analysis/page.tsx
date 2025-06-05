@@ -87,7 +87,7 @@ const rawDataString = `SL:no.	Zone	Type 	Muscat Bay Number	Unit Number (Muncipal
 55		SBJ Common Meter		Bank muscat	MISSING_METER	148	72	59	98	88	163
 56		SBJ Common Meter		CIF kitchen	MISSING_METER	16742	15554	16788	16154	14971	18446`.trim();
 
-const extractCategory = (unitName: string | undefined | null) => {
+const extractCategory = (unitName: string | undefined | null): string => {
     if (!unitName) return 'Other';
     const lowerUnitName = unitName.toLowerCase();
     if (lowerUnitName.includes('pumping station')) return 'Pumping Station';
@@ -107,7 +107,7 @@ const extractCategory = (unitName: string | undefined | null) => {
     return 'Other';
 };
 
-const parseData = (rawData) => {
+const parseData = (rawData: string) => {
   const lines = rawData.split('\n');
   const headerLine = lines[0].split('\t').map(h => h.trim());
   const dataLines = lines.slice(1);
@@ -125,7 +125,7 @@ const parseData = (rawData) => {
       unitName: unitName,
       category: extractCategory(unitName),
       meterAccountNo: values[5]?.trim() || 'N/A',
-      consumption: {},
+      consumption: {} as Record<string, number>,
       totalConsumption: 0, 
     };
     let currentOverallTotal = 0;
@@ -149,7 +149,18 @@ const availableMonths = initialElectricityData.length > 0 && initialElectricityD
 // SHARED COMPONENTS
 // ===============================
 
-const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }) => {
+interface SummaryCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<{ size?: number }>;
+  unit?: string;
+  trend?: string;
+  trendColor?: string;
+  iconBgColor?: string;
+  isLoading?: boolean;
+}
+
+const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }) => {
   const IconComponent = icon;
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
@@ -176,7 +187,14 @@ const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor,
   );
 };
 
-const ChartWrapper = ({ title, children, subtitle, actions }) => (
+interface ChartWrapperProps {
+  title: string;
+  children: React.ReactNode;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}
+
+const ChartWrapper: React.FC<ChartWrapperProps> = ({ title, children, subtitle, actions }) => (
   <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
     <div className="flex justify-between items-start mb-4">
       <div>
@@ -191,7 +209,17 @@ const ChartWrapper = ({ title, children, subtitle, actions }) => (
   </div>
 );
 
-const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disabled }) => {
+interface StyledSelectProps {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: Array<{ value: string; label: string }>;
+  id: string;
+  icon?: React.ComponentType<{ size?: number }>;
+  disabled?: boolean;
+}
+
+const StyledSelect: React.FC<StyledSelectProps> = ({ label, value, onChange, options, id, icon: Icon, disabled }) => {
     return (
         <div>
             <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">{label}</label>
@@ -214,7 +242,7 @@ const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disable
     );
 };
 
-const LoadingSpinner = ({ size = 24 }) => (
+const LoadingSpinner = ({ size = 24 }: { size?: number }) => (
   <div className="flex justify-center items-center">
     <div 
       className="animate-spin rounded-full border-4 border-slate-200 border-t-primary dark:border-slate-700" 
@@ -230,14 +258,14 @@ const LoadingSpinner = ({ size = 24 }) => (
 // ===============================
 // Electricity System Module
 // ===============================
-const ElectricitySystemModule = () => {
-  const [activeSubSection, setActiveSubSection] = useState('Dashboard');
-  const [selectedMonth, setSelectedMonth] = useState("All Months"); 
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-  const [aiAnalysisResult, setAiAnalysisResult] = useState("");
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isClientDarkMode, setIsClientDarkMode] = useState(false);
+const ElectricitySystemModule: React.FC = () => {
+  const [activeSubSection, setActiveSubSection] = useState<string>('Dashboard');
+  const [selectedMonth, setSelectedMonth] = useState<string>("All Months"); 
+  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
+  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string>("");
+  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
+  const [isClientDarkMode, setIsClientDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
     setIsClientDarkMode(document.documentElement.classList.contains('dark'));
@@ -276,12 +304,12 @@ const ElectricitySystemModule = () => {
 
   const consumptionByTypeChartData = useMemo(() => {
     const dataToUse = kpiAndTableData; 
-    const typeData = {};
+    const typeData: Record<string, number> = {};
     dataToUse.forEach(d => { typeData[d.type] = (typeData[d.type] || 0) + d.totalConsumption; });
     return Object.entries(typeData).map(([name, value]) => ({ name, value: parseFloat(value.toFixed(2)) })).filter(item => item.value > 0).sort((a,b) => b.value - a.value);
   }, [kpiAndTableData]);
 
-  const handleAiAnalysis = async () => {
+  const handleAiAnalysis = async (): Promise<void> => {
     setIsAiModalOpen(true);
     setIsAiLoading(true);
     setAiAnalysisResult("");
@@ -331,7 +359,8 @@ Recommendations:
                             color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
                         }} 
                         onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
-                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}>
+                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
+                      > 
                         <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
                         <span>{tab.name}</span> 
                       </button> 
