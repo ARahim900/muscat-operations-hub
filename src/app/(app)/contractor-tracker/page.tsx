@@ -349,7 +349,7 @@ export default function ContractorTrackerPage() {
       </div>
 
       {/* Filters */}
-      <Card className="p-4 sticky top-[80px] z-10">
+      <Card className="p-4 fixed top-4 left-4 right-4 z-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
             <label className="block text-sm font-medium text-gray-700 mb-1">Search Contractors</label>
@@ -413,127 +413,130 @@ export default function ContractorTrackerPage() {
         </div>
       </Card>
 
-      {/* Contractors Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            Contractor Details
-            <Badge variant="outline" className="text-sm">
-              {filteredContractors.length} contractors
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="text-left p-4 font-medium text-gray-700">Contractor</th>
-                  <th className="text-left p-4 font-medium text-gray-700">Service</th>
-                  <th className="text-left p-4 font-medium text-gray-700">Status</th>
-                  <th className="text-left p-4 font-medium text-gray-700">Category</th>
-                  <th className="text-left p-4 font-medium text-gray-700">Contract Period</th>
-                  <th className="text-right p-4 font-medium text-gray-700">Monthly Rate</th>
-                  <th className="text-right p-4 font-medium text-gray-700">Annual Total</th>
-                  <th className="text-center p-4 font-medium text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredContractors.map((contractor) => (
-                  <tr key={contractor.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="p-4">
-                      <div>
-                        <p className="font-medium text-gray-900">{contractor.contractor}</p>
-                        <p className="text-sm text-gray-500">{contractor.contractType}</p>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <p className="text-sm text-gray-900 max-w-[200px] truncate" title={contractor.service}>
-                        {contractor.service}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      {getStatusBadge(contractor.status)}
-                    </td>
-                    <td className="p-4">
-                      <Badge variant="outline" className="text-xs">
-                        {contractor.category}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm">
-                        <p className="text-gray-900">Start: {formatDate(contractor.startDate)}</p>
-                        <p className="text-gray-600">End: {formatDate(contractor.endDate)}</p>
-                      </div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <p className="font-medium text-gray-900">
-                        {formatCurrency(contractor.monthlyRate)}
-                      </p>
-                      <p className="text-xs text-gray-500">{contractor.vatStatus}</p>
-                    </td>
-                    <td className="p-4 text-right">
-                      <p className="font-medium text-gray-900">
-                        {formatCurrency(contractor.yearlyTotal)}
-                      </p>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
+      {/* Add padding-top to account for fixed filter bar */}
+      <div className="pt-24">
+        {/* Contractors Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              Contractor Details
+              <Badge variant="outline" className="text-sm">
+                {filteredContractors.length} contractors
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="text-left p-4 font-medium text-gray-700">Contractor</th>
+                    <th className="text-left p-4 font-medium text-gray-700">Service</th>
+                    <th className="text-left p-4 font-medium text-gray-700">Status</th>
+                    <th className="text-left p-4 font-medium text-gray-700">Category</th>
+                    <th className="text-left p-4 font-medium text-gray-700">Contract Period</th>
+                    <th className="text-right p-4 font-medium text-gray-700">Monthly Rate</th>
+                    <th className="text-right p-4 font-medium text-gray-700">Annual Total</th>
+                    <th className="text-center p-4 font-medium text-gray-700">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {filteredContractors.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No contractors found</h3>
-              <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredContractors.map((contractor) => (
+                    <tr key={contractor.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="p-4">
+                        <div>
+                          <p className="font-medium text-gray-900">{contractor.contractor}</p>
+                          <p className="text-sm text-gray-500">{contractor.contractType}</p>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <p className="text-sm text-gray-900 max-w-[200px] truncate" title={contractor.service}>
+                          {contractor.service}
+                        </p>
+                      </td>
+                      <td className="p-4">
+                        {getStatusBadge(contractor.status)}
+                      </td>
+                      <td className="p-4">
+                        <Badge variant="outline" className="text-xs">
+                          {contractor.category}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-sm">
+                          <p className="text-gray-900">Start: {formatDate(contractor.startDate)}</p>
+                          <p className="text-gray-600">End: {formatDate(contractor.endDate)}</p>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <p className="font-medium text-gray-900">
+                          {formatCurrency(contractor.monthlyRate)}
+                        </p>
+                        <p className="text-xs text-gray-500">{contractor.vatStatus}</p>
+                      </td>
+                      <td className="p-4 text-right">
+                        <p className="font-medium text-gray-900">
+                          {formatCurrency(contractor.yearlyTotal)}
+                        </p>
+                      </td>
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            
+            {filteredContractors.length === 0 && (
+              <div className="text-center py-12">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No contractors found</h3>
+                <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Notes Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Contract Notes & Updates
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {contractorData
-              .filter(c => c.notes && c.notes.trim() !== '')
-              .map(contractor => (
-                <div key={contractor.id} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <div className="p-1 bg-blue-100 rounded">
-                      <FileText className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{contractor.contractor}</p>
-                      <p className="text-sm text-gray-600 mt-1">{contractor.notes}</p>
+        {/* Notes Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Contract Notes & Updates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {contractorData
+                .filter(c => c.notes && c.notes.trim() !== '')
+                .map(contractor => (
+                  <div key={contractor.id} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 bg-blue-100 rounded">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{contractor.contractor}</p>
+                        <p className="text-sm text-gray-600 mt-1">{contractor.notes}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-          </div>
-        </CardContent>
-      </Card>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
