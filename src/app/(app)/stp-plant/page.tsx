@@ -782,8 +782,7 @@ const STPPlantModule = () => {
                             color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
                         }} 
                         onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
-                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
-                      > 
+                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}>
                         <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
                         <span>{tab.name}</span> 
                       </button> 
@@ -810,7 +809,7 @@ const STPPlantModule = () => {
     ];
     
     return (
-        <div className="bg-background shadow p-4 rounded-lg mb-6 print:hidden sticky top-[72px] z-10 border border-border dark:bg-slate-800 dark:border-slate-700">
+        <div className="bg-background shadow p-4 rounded-lg mb-6 print:hidden fixed top-4 left-4 right-4 z-50 border border-border dark:bg-slate-800 dark:border-slate-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <StyledSelect 
                   id="monthFilter" 
@@ -850,524 +849,527 @@ const STPPlantModule = () => {
       
       {activeSubSection === 'Dashboard' && <FilterBar />}
       
-      {activeSubSection === 'Dashboard' && (
-        <>
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            <SummaryCard 
-              title={selectedMonth === 'All Months' ? "Total Treated Water" : `${selectedMonth} Total`} 
-              value={kpiData.totalTreatedWater.toLocaleString()} 
-              unit="m³" 
-              icon={Droplets} 
-              trend={selectedMonth === 'All Months' ? `${kpiData.avgTreatedWater} m³/day avg` : `${kpiData.avgTreatedWater} m³/day avg`} 
-              trendColor="text-slate-500 dark:text-slate-400" 
-              iconBgColor={COLORS.info}
-              isLoading={isLoading}
-            />
-            <SummaryCard 
-              title={selectedMonth === 'All Months' ? "Total Input Process" : `${selectedMonth} Input`} 
-              value={kpiData.totalInputProcess.toLocaleString()} 
-              unit="m³" 
-              icon={Activity} 
-              trend={selectedMonth === 'All Months' ? `${kpiData.avgTotalInput} m³/day avg` : `${kpiData.avgTotalInput} m³/day avg`} 
-              trendColor="text-slate-600 dark:text-slate-300" 
-              iconBgColor={COLORS.accent}
-              isLoading={isLoading}
-            />
-            <SummaryCard 
-              title={selectedMonth === 'All Months' ? "Total TSE Production" : `${selectedMonth} TSE`} 
-              value={kpiData.totalTseOutput.toLocaleString()} 
-              unit="m³" 
-              icon={Recycle} 
-              trend={selectedMonth === 'All Months' ? `${kpiData.avgTseOutput} m³/day avg` : `${kpiData.avgTseOutput} m³/day avg`} 
-              trendColor="text-green-600 dark:text-green-400" 
-              iconBgColor={COLORS.warning}
-              isLoading={isLoading}
-            />
-            <SummaryCard 
-              title="Capacity Utilization" 
-              value={kpiData.capacityUtilization.toFixed(1)} 
-              unit="%" 
-              icon={Gauge} 
-              trend={`${Math.max(0, PLANT_DESIGN_CAPACITY - kpiData.avgTreatedWater)} m³/day spare`} 
-              trendColor="text-slate-600 dark:text-slate-300" 
-              iconBgColor={COLORS.primary}
-              isLoading={isLoading}
-            />
-            <SummaryCard 
-              title={selectedMonth === 'All Months' ? "Total Tankers" : `${selectedMonth} Tankers`} 
-              value={kpiData.totalTankersDischarge.toString()} 
-              unit="units" 
-              icon={Database} 
-              trend={`${kpiData.avgTankerPercentage.toFixed(1)}% of input`} 
-              trendColor="text-slate-600 dark:text-slate-300" 
-              iconBgColor={COLORS.success}
-              isLoading={isLoading}
-            />
-          </div>
+      {/* Add padding-top to account for fixed filter bar */}
+      <div className={activeSubSection === 'Dashboard' ? 'pt-24' : ''}>
+        {activeSubSection === 'Dashboard' && (
+          <>
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              <SummaryCard 
+                title={selectedMonth === 'All Months' ? "Total Treated Water" : `${selectedMonth} Total`} 
+                value={kpiData.totalTreatedWater.toLocaleString()} 
+                unit="m³" 
+                icon={Droplets} 
+                trend={selectedMonth === 'All Months' ? `${kpiData.avgTreatedWater} m³/day avg` : `${kpiData.avgTreatedWater} m³/day avg`} 
+                trendColor="text-slate-500 dark:text-slate-400" 
+                iconBgColor={COLORS.info}
+                isLoading={isLoading}
+              />
+              <SummaryCard 
+                title={selectedMonth === 'All Months' ? "Total Input Process" : `${selectedMonth} Input`} 
+                value={kpiData.totalInputProcess.toLocaleString()} 
+                unit="m³" 
+                icon={Activity} 
+                trend={selectedMonth === 'All Months' ? `${kpiData.avgTotalInput} m³/day avg` : `${kpiData.avgTotalInput} m³/day avg`} 
+                trendColor="text-slate-600 dark:text-slate-300" 
+                iconBgColor={COLORS.accent}
+                isLoading={isLoading}
+              />
+              <SummaryCard 
+                title={selectedMonth === 'All Months' ? "Total TSE Production" : `${selectedMonth} TSE`} 
+                value={kpiData.totalTseOutput.toLocaleString()} 
+                unit="m³" 
+                icon={Recycle} 
+                trend={selectedMonth === 'All Months' ? `${kpiData.avgTseOutput} m³/day avg` : `${kpiData.avgTseOutput} m³/day avg`} 
+                trendColor="text-green-600 dark:text-green-400" 
+                iconBgColor={COLORS.warning}
+                isLoading={isLoading}
+              />
+              <SummaryCard 
+                title="Capacity Utilization" 
+                value={kpiData.capacityUtilization.toFixed(1)} 
+                unit="%" 
+                icon={Gauge} 
+                trend={`${Math.max(0, PLANT_DESIGN_CAPACITY - kpiData.avgTreatedWater)} m³/day spare`} 
+                trendColor="text-slate-600 dark:text-slate-300" 
+                iconBgColor={COLORS.primary}
+                isLoading={isLoading}
+              />
+              <SummaryCard 
+                title={selectedMonth === 'All Months' ? "Total Tankers" : `${selectedMonth} Tankers`} 
+                value={kpiData.totalTankersDischarge.toString()} 
+                unit="units" 
+                icon={Database} 
+                trend={`${kpiData.avgTankerPercentage.toFixed(1)}% of input`} 
+                trendColor="text-slate-600 dark:text-slate-300" 
+                iconBgColor={COLORS.success}
+                isLoading={isLoading}
+              />
+            </div>
 
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <ChartWrapper title="Daily Treatment Performance" subtitle={`Recent 15 days - ${selectedMonth === 'All Months' ? 'Latest Data' : selectedMonth}`}>
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <ChartWrapper title="Daily Treatment Performance" subtitle={`Recent 15 days - ${selectedMonth === 'All Months' ? 'Latest Data' : selectedMonth}`}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                      <YAxis yAxisId="left" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                      <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                      <Tooltip 
+                        contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} 
+                        itemStyle={{color: 'var(--foreground)'}} 
+                        labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}
+                      />
+                      <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
+                      <Bar yAxisId="left" dataKey="treated" fill={COLORS.chart[0]} name="Treated Water (m³)" />
+                      <Bar yAxisId="left" dataKey="tse" fill={COLORS.chart[1]} name="TSE Output (m³)" />
+                      <Line yAxisId="right" type="monotone" dataKey="efficiency" stroke={COLORS.success} strokeWidth={3} name="Efficiency %" />
+                      <Line 
+                        yAxisId="left" 
+                        type="monotone" 
+                        dataKey={() => PLANT_DESIGN_CAPACITY} 
+                        stroke={COLORS.error} 
+                        strokeWidth={2} 
+                        strokeDasharray="5 5" 
+                        name={`Design Capacity (${PLANT_DESIGN_CAPACITY} m³)`}
+                        dot={false}
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </ChartWrapper>
+              </div>
+
+              <ChartWrapper title="Performance Metrics" subtitle={`${selectedMonth} efficiency breakdown`}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <YAxis yAxisId="left" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                    <Tooltip 
-                      contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} 
-                      itemStyle={{color: 'var(--foreground)'}} 
-                      labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}
-                    />
-                    <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
-                    <Bar yAxisId="left" dataKey="treated" fill={COLORS.chart[0]} name="Treated Water (m³)" />
-                    <Bar yAxisId="left" dataKey="tse" fill={COLORS.chart[1]} name="TSE Output (m³)" />
-                    <Line yAxisId="right" type="monotone" dataKey="efficiency" stroke={COLORS.success} strokeWidth={3} name="Efficiency %" />
-                    <Line 
-                      yAxisId="left" 
-                      type="monotone" 
-                      dataKey={() => PLANT_DESIGN_CAPACITY} 
-                      stroke={COLORS.error} 
-                      strokeWidth={2} 
-                      strokeDasharray="5 5" 
-                      name={`Design Capacity (${PLANT_DESIGN_CAPACITY} m³)`}
-                      dot={false}
-                    />
-                  </ComposedChart>
+                  <PieChart>
+                    <Pie
+                      data={processEfficiencyData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="45%"
+                      innerRadius={50}
+                      outerRadius={90}
+                      paddingAngle={2}
+                      cornerRadius={3}
+                    >
+                      {processEfficiencyData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                      <RechartsLabel 
+                        value={`${Math.round(processEfficiencyData[0]?.value || 0)}%`} 
+                        position="centerBottom" 
+                        dy={-5} 
+                        className="text-xl font-bold fill-foreground"
+                      />
+                      <RechartsLabel 
+                        value="Avg Efficiency" 
+                        position="centerTop" 
+                        dy={10} 
+                        className="text-xs fill-muted-foreground"
+                      />
+                    </Pie>
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Legend verticalAlign="bottom" wrapperStyle={{paddingTop: '15px', fontSize: '11px'}}/>
+                  </PieChart>
                 </ResponsiveContainer>
               </ChartWrapper>
             </div>
 
-            <ChartWrapper title="Performance Metrics" subtitle={`${selectedMonth} efficiency breakdown`}>
+            {/* Monthly Summary */}
+            <ChartWrapper title="Monthly Performance Overview" subtitle="Production volumes, efficiency and capacity utilization">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={processEfficiencyData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="45%"
-                    innerRadius={50}
-                    outerRadius={90}
-                    paddingAngle={2}
-                    cornerRadius={3}
-                  >
-                    {processEfficiencyData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                    <RechartsLabel 
-                      value={`${Math.round(processEfficiencyData[0]?.value || 0)}%`} 
-                      position="centerBottom" 
-                      dy={-5} 
-                      className="text-xl font-bold fill-foreground"
-                    />
-                    <RechartsLabel 
-                      value="Avg Efficiency" 
-                      position="centerTop" 
-                      dy={10} 
-                      className="text-xs fill-muted-foreground"
-                    />
-                  </Pie>
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
-                  <Legend verticalAlign="bottom" wrapperStyle={{paddingTop: '15px', fontSize: '11px'}}/>
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartWrapper>
-          </div>
-
-          {/* Monthly Summary */}
-          <ChartWrapper title="Monthly Performance Overview" subtitle="Production volumes, efficiency and capacity utilization">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} angle={-45} textAnchor="end" height={80} />
-                <YAxis yAxisId="left" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                <Tooltip 
-                  contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} 
-                  itemStyle={{color: 'var(--foreground)'}} 
-                  labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}
-                  formatter={(value, name) => {
-                    if (name === 'Avg Daily (m³)') return [`${value} m³/day`, name];
-                    if (name === 'Capacity %') return [`${value}%`, name];
-                    if (name === 'Efficiency %') return [`${value}%`, name];
-                    return [value, name];
-                  }}
-                />
-                <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
-                <Bar yAxisId="left" dataKey="avgDaily" fill={COLORS.chart[0]} name="Avg Daily (m³)" />
-                <Line yAxisId="right" type="monotone" dataKey="capacityUtilization" stroke={COLORS.warning} strokeWidth={3} name="Capacity %" />
-                <Line yAxisId="right" type="monotone" dataKey="efficiency" stroke={COLORS.success} strokeWidth={3} name="Efficiency %" />
-                <Line 
-                  yAxisId="left" 
-                  type="monotone" 
-                  dataKey={() => PLANT_DESIGN_CAPACITY} 
-                  stroke={COLORS.error} 
-                  strokeWidth={2} 
-                  strokeDasharray="5 5" 
-                  name="Design Capacity" 
-                  dot={false}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </ChartWrapper>
-        </>
-      )}
-
-      {activeSubSection === 'Performance' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartWrapper title="Treatment Efficiency Trend" subtitle="Daily efficiency over time">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
+                <ComposedChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <YAxis domain={[75, 105]} tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} angle={-45} textAnchor="end" height={80} />
+                  <YAxis yAxisId="left" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <Tooltip 
+                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} 
+                    itemStyle={{color: 'var(--foreground)'}} 
+                    labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}
+                    formatter={(value, name) => {
+                      if (name === 'Avg Daily (m³)') return [`${value} m³/day`, name];
+                      if (name === 'Capacity %') return [`${value}%`, name];
+                      if (name === 'Efficiency %') return [`${value}%`, name];
+                      return [value, name];
+                    }}
+                  />
+                  <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
+                  <Bar yAxisId="left" dataKey="avgDaily" fill={COLORS.chart[0]} name="Avg Daily (m³)" />
+                  <Line yAxisId="right" type="monotone" dataKey="capacityUtilization" stroke={COLORS.warning} strokeWidth={3} name="Capacity %" />
+                  <Line yAxisId="right" type="monotone" dataKey="efficiency" stroke={COLORS.success} strokeWidth={3} name="Efficiency %" />
                   <Line 
+                    yAxisId="left" 
                     type="monotone" 
-                    dataKey="efficiency" 
-                    stroke={COLORS.success} 
-                    strokeWidth={3}
-                    dot={{r:4, fill: COLORS.success}}
-                    activeDot={{ r: 7, strokeWidth: 2, fill: COLORS.success }}
-                    name="Treatment Efficiency %" 
+                    dataKey={() => PLANT_DESIGN_CAPACITY} 
+                    stroke={COLORS.error} 
+                    strokeWidth={2} 
+                    strokeDasharray="5 5" 
+                    name="Design Capacity" 
+                    dot={false}
                   />
-                </LineChart>
+                </ComposedChart>
               </ResponsiveContainer>
             </ChartWrapper>
+          </>
+        )}
 
-            <ChartWrapper title="Input vs Output Analysis" subtitle="Water flow comparison">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
-                  <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="inlet" 
-                    stackId="1" 
-                    stroke={COLORS.chart[2]} 
-                    fill={COLORS.chart[2]} 
-                    fillOpacity={0.6}
-                    name="Total Inlet (m³)"
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="treated" 
-                    stackId="2" 
-                    stroke={COLORS.chart[0]} 
-                    fill={COLORS.chart[0]} 
-                    fillOpacity={0.8}
-                    name="Treated Water (m³)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </ChartWrapper>
-          </div>
+        {activeSubSection === 'Performance' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChartWrapper title="Treatment Efficiency Trend" subtitle="Daily efficiency over time">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <YAxis domain={[75, 105]} tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="efficiency" 
+                      stroke={COLORS.success} 
+                      strokeWidth={3}
+                      dot={{r:4, fill: COLORS.success}}
+                      activeDot={{ r: 7, strokeWidth: 2, fill: COLORS.success }}
+                      name="Treatment Efficiency %" 
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <ChartWrapper title="Tanker Discharge Frequency" subtitle="Daily tanker operations">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
-                  <Bar dataKey="tankers" fill={COLORS.warning} name="Tankers Discharged" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartWrapper>
-
-            <div className="lg:col-span-2">
-              <div className="bg-background p-6 rounded-xl shadow-lg border border-border dark:bg-slate-800 dark:border-slate-700">
-                <h3 className="text-xl font-semibold text-foreground mb-4">Performance Indicators</h3>
-                <div className="space-y-4">
-                  {[
-                    { 
-                      name: 'Treatment Efficiency', 
-                      value: kpiData.avgEfficiency, 
-                      target: 90, 
-                      unit: '%',
-                      status: kpiData.avgEfficiency >= 90 ? 'excellent' : kpiData.avgEfficiency >= 80 ? 'good' : 'needs-improvement'
-                    },
-                    { 
-                      name: 'Daily Water Production', 
-                      value: kpiData.avgTreatedWater, 
-                      target: PLANT_DESIGN_CAPACITY, 
-                      unit: 'm³',
-                      status: kpiData.avgTreatedWater >= (PLANT_DESIGN_CAPACITY * 0.9) ? 'excellent' : kpiData.avgTreatedWater >= (PLANT_DESIGN_CAPACITY * 0.7) ? 'good' : 'needs-improvement'
-                    },
-                    { 
-                      name: 'Capacity Utilization', 
-                      value: kpiData.capacityUtilization, 
-                      target: 80, 
-                      unit: '%',
-                      status: kpiData.capacityUtilization >= 75 && kpiData.capacityUtilization <= 90 ? 'excellent' : kpiData.capacityUtilization >= 60 ? 'good' : 'needs-improvement'
-                    },
-                    { 
-                      name: 'TSE Recovery Rate', 
-                      value: kpiData.avgTreatedWater > 0 ? Math.round((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) : 0, 
-                      target: 85, 
-                      unit: '%',
-                      status: kpiData.avgTreatedWater > 0 && ((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) >= 85 ? 'excellent' : kpiData.avgTreatedWater > 0 && ((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) >= 75 ? 'good' : 'needs-improvement'
-                    },
-                    { 
-                      name: 'Tanker Dependency', 
-                      value: kpiData.avgTankerPercentage, 
-                      target: 40, 
-                      unit: '%',
-                      status: kpiData.avgTankerPercentage <= 40 ? 'excellent' : kpiData.avgTankerPercentage <= 60 ? 'good' : 'needs-improvement'
-                    }
-                  ].map((indicator, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground">{indicator.name}</h4>
-                        <p className="text-sm text-muted-foreground">Target: {indicator.target}{indicator.unit}</p>
-                      </div>
-                      <div className="text-right mr-4">
-                        <p className="text-lg font-bold text-foreground">
-                          {typeof indicator.value === 'number' && !isNaN(indicator.value) ? indicator.value.toFixed(1) : '0'}{indicator.unit}
-                        </p>
-                      </div>
-                      <div className="flex-1 mx-4">
-                        <div className="w-full bg-muted rounded-full h-3">
-                          <div 
-                            className={`h-3 rounded-full transition-all duration-500 ${
-                              indicator.status === 'excellent' ? 'bg-green-500' :
-                              indicator.status === 'good' ? 'bg-blue-500' : 'bg-orange-500'
-                            }`}
-                            style={{ 
-                              width: `${Math.min(100, Math.max(0, (typeof indicator.value === 'number' && !isNaN(indicator.value) && indicator.target > 0 ? (indicator.value / (indicator.target * 1.2)) * 100 : 0)))}%` 
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                      <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                        indicator.status === 'excellent' ? 'bg-success/20 text-success-foreground' : // These may need adjustment based on globals.css
-                        indicator.status === 'good' ? 'bg-info/20 text-info-foreground' :
-                        'bg-warning/20 text-warning-foreground'
-                      }`}>
-                        {indicator.status === 'excellent' ? 'EXCELLENT' :
-                         indicator.status === 'good' ? 'GOOD' : 'REVIEW NEEDED'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeSubSection === 'ProcessFlow' && (
-        <div className="space-y-6">
-          <div className="bg-background p-8 rounded-xl shadow-lg border border-border dark:bg-slate-800 dark:border-slate-700">
-            <h3 className="text-2xl font-semibold text-foreground mb-6 text-center">STP Process Flow Diagram</h3>
-            
-            <div className="flex flex-col lg:flex-row items-center justify-around space-y-8 lg:space-y-0 lg:space-x-8">
-              {/* Input Stage */}
-              <div className="text-center">
-                <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 mx-auto border-2 border-blue-300 dark:border-blue-700">
-                  <Droplets size={32} className="text-blue-600 dark:text-blue-400" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">Raw Sewage Input</h4>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>Tankers: {kpiData.avgTankerPercentage.toFixed(1)}%</p>
-                  <p>Direct Line: {(100 - kpiData.avgTankerPercentage).toFixed(1)}%</p>
-                  <p className="font-medium text-foreground">
-                    {selectedMonth === 'All Months' ? `${kpiData.totalInputProcess.toLocaleString()} m³ total` : `${kpiData.totalInputProcess.toLocaleString()} m³`}
-                  </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Avg: {kpiData.avgTotalInput} m³/day</p>
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex items-center text-slate-400 dark:text-slate-500 text-3xl font-extralight lg:rotate-0 rotate-90">
-                →
-              </div>
-
-              {/* Treatment Stage */}
-              <div className="text-center">
-                <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4 mx-auto border-2 border-green-300 dark:border-green-700">
-                  <Combine size={32} className="text-green-600 dark:text-green-400" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">Treatment Process</h4>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>Efficiency: {kpiData.avgEfficiency.toFixed(1)}%</p>
-                  <p>Capacity: {kpiData.capacityUtilization.toFixed(1)}%</p>
-                  <p className="font-medium text-foreground">{kpiData.avgTreatedWater} m³/day</p>
-                  <p className="text-xs text-green-600 dark:text-green-400">Remaining: {Math.max(0, PLANT_DESIGN_CAPACITY - kpiData.avgTreatedWater)} m³/day</p>
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex items-center text-slate-400 dark:text-slate-500 text-3xl font-extralight lg:rotate-0 rotate-90">
-                →
-              </div>
-
-              {/* Output Stage */}
-              <div className="text-center">
-                <div className="w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mb-4 mx-auto border-2 border-purple-300 dark:border-purple-700">
-                  <Recycle size={32} className="text-purple-600 dark:text-purple-400" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">TSE for Irrigation</h4>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>Recovery: {kpiData.avgTreatedWater > 0 ? Math.round((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) : 0}%</p>
-                  <p>Quality: Excellent</p>
-                  <p className="font-medium text-foreground">
-                    {selectedMonth === 'All Months' ? `${kpiData.totalTseOutput.toLocaleString()} m³ total` : `${kpiData.totalTseOutput.toLocaleString()} m³`}
-                  </p>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">Avg: {kpiData.avgTseOutput} m³/day</p>
-                </div>
-              </div>
+              <ChartWrapper title="Input vs Output Analysis" subtitle="Water flow comparison">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="inlet" 
+                      stackId="1" 
+                      stroke={COLORS.chart[2]} 
+                      fill={COLORS.chart[2]} 
+                      fillOpacity={0.6}
+                      name="Total Inlet (m³)"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="treated" 
+                      stackId="2" 
+                      stroke={COLORS.chart[0]} 
+                      fill={COLORS.chart[0]} 
+                      fillOpacity={0.8}
+                      name="Treated Water (m³)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg text-center border border-blue-200 dark:border-blue-800">
-                <h5 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Primary Treatment</h5>
-                <p className="text-sm text-blue-600 dark:text-blue-400">Physical separation of solids and liquids through screening and settling</p>
-              </div>
-              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg text-center border border-green-200 dark:border-green-800">
-                <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2">Secondary Treatment</h5>
-                <p className="text-sm text-green-600 dark:text-green-400">Biological treatment using activated sludge process for organic matter removal</p>
-              </div>
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg text-center border border-purple-200 dark:border-purple-800">
-                <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">Tertiary Treatment</h5>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Advanced filtration and disinfection producing high-quality TSE water</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <ChartWrapper title="Tanker Discharge Frequency" subtitle="Daily tanker operations">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Bar dataKey="tankers" fill={COLORS.warning} name="Tankers Discharged" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
 
-      {activeSubSection === 'Analytics' && (
-        <div className="space-y-6">
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartWrapper title="Input Source Analysis" subtitle={`${selectedMonth} - Tanker vs Direct Sewage`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
+              <div className="lg:col-span-2">
+                <div className="bg-background p-6 rounded-xl shadow-lg border border-border dark:bg-slate-800 dark:border-slate-700">
+                  <h3 className="text-xl font-semibold text-foreground mb-4">Performance Indicators</h3>
+                  <div className="space-y-4">
+                    {[
                       { 
-                        name: 'Tanker Input', 
-                        value: Math.round(kpiData.avgTankerPercentage * 10) / 10, 
-                        color: COLORS.warning 
+                        name: 'Treatment Efficiency', 
+                        value: kpiData.avgEfficiency, 
+                        target: 90, 
+                        unit: '%',
+                        status: kpiData.avgEfficiency >= 90 ? 'excellent' : kpiData.avgEfficiency >= 80 ? 'good' : 'needs-improvement'
                       },
                       { 
-                        name: 'Direct Sewage', 
-                        value: Math.round((100 - kpiData.avgTankerPercentage) * 10) / 10, 
-                        color: COLORS.info 
+                        name: 'Daily Water Production', 
+                        value: kpiData.avgTreatedWater, 
+                        target: PLANT_DESIGN_CAPACITY, 
+                        unit: 'm³',
+                        status: kpiData.avgTreatedWater >= (PLANT_DESIGN_CAPACITY * 0.9) ? 'excellent' : kpiData.avgTreatedWater >= (PLANT_DESIGN_CAPACITY * 0.7) ? 'good' : 'needs-improvement'
+                      },
+                      { 
+                        name: 'Capacity Utilization', 
+                        value: kpiData.capacityUtilization, 
+                        target: 80, 
+                        unit: '%',
+                        status: kpiData.capacityUtilization >= 75 && kpiData.capacityUtilization <= 90 ? 'excellent' : kpiData.capacityUtilization >= 60 ? 'good' : 'needs-improvement'
+                      },
+                      { 
+                        name: 'TSE Recovery Rate', 
+                        value: kpiData.avgTreatedWater > 0 ? Math.round((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) : 0, 
+                        target: 85, 
+                        unit: '%',
+                        status: kpiData.avgTreatedWater > 0 && ((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) >= 85 ? 'excellent' : kpiData.avgTreatedWater > 0 && ((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) >= 75 ? 'good' : 'needs-improvement'
+                      },
+                      { 
+                        name: 'Tanker Dependency', 
+                        value: kpiData.avgTankerPercentage, 
+                        target: 40, 
+                        unit: '%',
+                        status: kpiData.avgTankerPercentage <= 40 ? 'excellent' : kpiData.avgTankerPercentage <= 60 ? 'good' : 'needs-improvement'
                       }
-                    ]}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                  >
-                    {[
-                      { name: 'Tanker Input', value: kpiData.avgTankerPercentage, color: COLORS.warning },
-                      { name: 'Direct Sewage', value: 100 - kpiData.avgTankerPercentage, color: COLORS.info }
-                    ].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartWrapper>
-
-            <ChartWrapper title="Capacity vs Performance" subtitle={`${selectedMonth} operational metrics`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[
-                  { 
-                    metric: 'Design Capacity', 
-                    value: PLANT_DESIGN_CAPACITY, 
-                    current: kpiData.avgTreatedWater,
-                    percentage: 100 
-                  },
-                  { 
-                    metric: 'Current Production', 
-                    value: kpiData.avgTreatedWater, 
-                    current: kpiData.avgTreatedWater,
-                    percentage: kpiData.capacityUtilization 
-                  },
-                  { 
-                    metric: 'TSE Output', 
-                    value: kpiData.avgTseOutput, 
-                    current: kpiData.avgTseOutput,
-                    percentage: (kpiData.avgTseOutput / PLANT_DESIGN_CAPACITY) * 100 
-                  }
-                ]}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="metric" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`${value} m³/day`]} contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
-                  <Legend />
-                  <Bar dataKey="value" fill={COLORS.chart[0]} name="Volume (m³/day)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartWrapper>
-          </div>
-
-          {/* Monthly Performance Table */}
-          <div className="bg-background p-6 rounded-xl shadow-lg border border-border dark:bg-slate-800 dark:border-slate-700">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Monthly Performance Summary</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-muted/50">
-                  <tr>
-                    {['Month', 'Total Treated (m³)', 'Avg Daily (m³)', 'Capacity %', 'Efficiency %', 'TSE Output (m³)', 'Days'].map((header) => (
-                      <th key={header} className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="bg-background divide-y divide-border">
-                  {monthlyData.slice(-12).map((row, index) => (
-                    <tr key={index} className={`hover:bg-muted/50 ${row.month === selectedMonth ? 'bg-accent/20' : ''}`}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">{row.month}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{row.treatedWater.toLocaleString()}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{row.avgDaily}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          row.capacityUtilization > 85 ? 'bg-error/20 text-error-foreground' : // Example: Use semantic colors
-                          row.capacityUtilization > 70 ? 'bg-warning/20 text-warning-foreground' :
-                          row.capacityUtilization > 50 ? 'bg-success/20 text-success-foreground' :
-                          'bg-info/20 text-info-foreground'
-                        }`}>
-                          {row.capacityUtilization.toFixed(1)}%
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          row.efficiency > 90 ? 'bg-success/20 text-success-foreground' :
-                          row.efficiency > 80 ? 'bg-info/20 text-info-foreground' :
+                    ].map((indicator, index) => (
+                      <div key={index} className="flex justify-between items-center p-4 bg-muted/50 rounded-lg border border-border">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-foreground">{indicator.name}</h4>
+                          <p className="text-sm text-muted-foreground">Target: {indicator.target}{indicator.unit}</p>
+                        </div>
+                        <div className="text-right mr-4">
+                          <p className="text-lg font-bold text-foreground">
+                            {typeof indicator.value === 'number' && !isNaN(indicator.value) ? indicator.value.toFixed(1) : '0'}{indicator.unit}
+                          </p>
+                        </div>
+                        <div className="flex-1 mx-4">
+                          <div className="w-full bg-muted rounded-full h-3">
+                            <div 
+                              className={`h-3 rounded-full transition-all duration-500 ${
+                                indicator.status === 'excellent' ? 'bg-green-500' :
+                                indicator.status === 'good' ? 'bg-blue-500' : 'bg-orange-500'
+                              }`}
+                              style={{ 
+                                width: `${Math.min(100, Math.max(0, (typeof indicator.value === 'number' && !isNaN(indicator.value) && indicator.target > 0 ? (indicator.value / (indicator.target * 1.2)) * 100 : 0)))}%` 
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                          indicator.status === 'excellent' ? 'bg-success/20 text-success-foreground' : // These may need adjustment based on globals.css
+                          indicator.status === 'good' ? 'bg-info/20 text-info-foreground' :
                           'bg-warning/20 text-warning-foreground'
                         }`}>
-                          {row.efficiency.toFixed(1)}%
+                          {indicator.status === 'excellent' ? 'EXCELLENT' :
+                           indicator.status === 'good' ? 'GOOD' : 'REVIEW NEEDED'}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{row.tseOutput.toLocaleString()}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{row.days}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {activeSubSection === 'ProcessFlow' && (
+          <div className="space-y-6">
+            <div className="bg-background p-8 rounded-xl shadow-lg border border-border dark:bg-slate-800 dark:border-slate-700">
+              <h3 className="text-2xl font-semibold text-foreground mb-6 text-center">STP Process Flow Diagram</h3>
+              
+              <div className="flex flex-col lg:flex-row items-center justify-around space-y-8 lg:space-y-0 lg:space-x-8">
+                {/* Input Stage */}
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 mx-auto border-2 border-blue-300 dark:border-blue-700">
+                    <Droplets size={32} className="text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">Raw Sewage Input</h4>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>Tankers: {kpiData.avgTankerPercentage.toFixed(1)}%</p>
+                    <p>Direct Line: {(100 - kpiData.avgTankerPercentage).toFixed(1)}%</p>
+                    <p className="font-medium text-foreground">
+                      {selectedMonth === 'All Months' ? `${kpiData.totalInputProcess.toLocaleString()} m³ total` : `${kpiData.totalInputProcess.toLocaleString()} m³`}
+                    </p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">Avg: {kpiData.avgTotalInput} m³/day</p>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex items-center text-slate-400 dark:text-slate-500 text-3xl font-extralight lg:rotate-0 rotate-90">
+                  →
+                </div>
+
+                {/* Treatment Stage */}
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4 mx-auto border-2 border-green-300 dark:border-green-700">
+                    <Combine size={32} className="text-green-600 dark:text-green-400" />
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">Treatment Process</h4>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>Efficiency: {kpiData.avgEfficiency.toFixed(1)}%</p>
+                    <p>Capacity: {kpiData.capacityUtilization.toFixed(1)}%</p>
+                    <p className="font-medium text-foreground">{kpiData.avgTreatedWater} m³/day</p>
+                    <p className="text-xs text-green-600 dark:text-green-400">Remaining: {Math.max(0, PLANT_DESIGN_CAPACITY - kpiData.avgTreatedWater)} m³/day</p>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex items-center text-slate-400 dark:text-slate-500 text-3xl font-extralight lg:rotate-0 rotate-90">
+                  →
+                </div>
+
+                {/* Output Stage */}
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mb-4 mx-auto border-2 border-purple-300 dark:border-purple-700">
+                    <Recycle size={32} className="text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">TSE for Irrigation</h4>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>Recovery: {kpiData.avgTreatedWater > 0 ? Math.round((kpiData.avgTseOutput / kpiData.avgTreatedWater) * 100) : 0}%</p>
+                    <p>Quality: Excellent</p>
+                    <p className="font-medium text-foreground">
+                      {selectedMonth === 'All Months' ? `${kpiData.totalTseOutput.toLocaleString()} m³ total` : `${kpiData.totalTseOutput.toLocaleString()} m³`}
+                    </p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">Avg: {kpiData.avgTseOutput} m³/day</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg text-center border border-blue-200 dark:border-blue-800">
+                  <h5 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Primary Treatment</h5>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">Physical separation of solids and liquids through screening and settling</p>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg text-center border border-green-200 dark:border-green-800">
+                  <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2">Secondary Treatment</h5>
+                  <p className="text-sm text-green-600 dark:text-green-400">Biological treatment using activated sludge process for organic matter removal</p>
+                </div>
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg text-center border border-purple-200 dark:border-purple-800">
+                  <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">Tertiary Treatment</h5>
+                  <p className="text-sm text-purple-600 dark:text-purple-400">Advanced filtration and disinfection producing high-quality TSE water</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeSubSection === 'Analytics' && (
+          <div className="space-y-6">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChartWrapper title="Input Source Analysis" subtitle={`${selectedMonth} - Tanker vs Direct Sewage`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { 
+                          name: 'Tanker Input', 
+                          value: Math.round(kpiData.avgTankerPercentage * 10) / 10, 
+                          color: COLORS.warning 
+                        },
+                        { 
+                          name: 'Direct Sewage', 
+                          value: Math.round((100 - kpiData.avgTankerPercentage) * 10) / 10, 
+                          color: COLORS.info 
+                        }
+                      ]}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                    >
+                      {[
+                        { name: 'Tanker Input', value: kpiData.avgTankerPercentage, color: COLORS.warning },
+                        { name: 'Direct Sewage', value: 100 - kpiData.avgTankerPercentage, color: COLORS.info }
+                      ].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
+
+              <ChartWrapper title="Capacity vs Performance" subtitle={`${selectedMonth} operational metrics`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    { 
+                      metric: 'Design Capacity', 
+                      value: PLANT_DESIGN_CAPACITY, 
+                      current: kpiData.avgTreatedWater,
+                      percentage: 100 
+                    },
+                    { 
+                      metric: 'Current Production', 
+                      value: kpiData.avgTreatedWater, 
+                      current: kpiData.avgTreatedWater,
+                      percentage: kpiData.capacityUtilization 
+                    },
+                    { 
+                      metric: 'TSE Output', 
+                      value: kpiData.avgTseOutput, 
+                      current: kpiData.avgTseOutput,
+                      percentage: (kpiData.avgTseOutput / PLANT_DESIGN_CAPACITY) * 100 
+                    }
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="metric" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`${value} m³/day`]} contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} />
+                    <Legend />
+                    <Bar dataKey="value" fill={COLORS.chart[0]} name="Volume (m³/day)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
+            </div>
+
+            {/* Monthly Performance Table */}
+            <div className="bg-background p-6 rounded-xl shadow-lg border border-border dark:bg-slate-800 dark:border-slate-700">
+              <h3 className="text-xl font-semibold text-foreground mb-4">Monthly Performance Summary</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      {['Month', 'Total Treated (m³)', 'Avg Daily (m³)', 'Capacity %', 'Efficiency %', 'TSE Output (m³)', 'Days'].map((header) => (
+                        <th key={header} className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-background divide-y divide-border">
+                    {monthlyData.slice(-12).map((row, index) => (
+                      <tr key={index} className={`hover:bg-muted/50 ${row.month === selectedMonth ? 'bg-accent/20' : ''}`}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">{row.month}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{row.treatedWater.toLocaleString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{row.avgDaily}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            row.capacityUtilization > 85 ? 'bg-error/20 text-error-foreground' : // Example: Use semantic colors
+                            row.capacityUtilization > 70 ? 'bg-warning/20 text-warning-foreground' :
+                            row.capacityUtilization > 50 ? 'bg-success/20 text-success-foreground' :
+                            'bg-info/20 text-info-foreground'
+                          }`}>
+                            {row.capacityUtilization.toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            row.efficiency > 90 ? 'bg-success/20 text-success-foreground' :
+                            row.efficiency > 80 ? 'bg-info/20 text-info-foreground' :
+                            'bg-warning/20 text-warning-foreground'
+                          }`}>
+                            {row.efficiency.toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{row.tseOutput.toLocaleString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{row.days}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* AI Analysis Modal */}
       {isAiModalOpen && (
