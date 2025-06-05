@@ -391,8 +391,7 @@ const WaterAnalysisModule = () => {
                             color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
                         }} 
                         onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
-                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
-                      > 
+                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}>
                         <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
                         <span>{tab.name}</span> 
                       </button> 
@@ -408,7 +407,7 @@ const WaterAnalysisModule = () => {
     const zoneOptions = [{ value: "All Zones", label: "All Zones" }, ...[...new Set(waterSystemData.map(d => d.zone))].filter(Boolean).sort().map(z => ({ value: z, label: z }))];
     
     return (
-        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden sticky top-[80px] z-10 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden fixed top-4 left-4 right-4 z-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <WaterStyledSelect 
                   id="waterMonthFilter" 
@@ -502,283 +501,286 @@ const WaterAnalysisModule = () => {
 
       {activeWaterSubSection === 'Overview' && <WaterFilterBar />}
 
-      {activeWaterSubSection === 'Overview' && (
-        <>
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water System Hierarchy Levels ({selectedWaterMonth})</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <WaterSummaryCard 
-                title="A1 - Main Source (L1)" 
-                value={waterCalculations.A1_totalSupply.toLocaleString(undefined, {maximumFractionDigits:0})} 
-                unit="m³" 
-                icon={Droplets} 
-                trend="Main Bulk (NAMA)" 
-                trendColor="text-blue-600 dark:text-blue-400" 
-                iconBgColor={COLORS.info}
-                isLoading={isLoading}
-              />
-              <WaterSummaryCard 
-                title="A2 - Primary Distribution" 
-                value={waterCalculations.A2_total.toLocaleString(undefined, {maximumFractionDigits:0})} 
-                unit="m³" 
-                icon={Building} 
-                trend={`L2: ${waterCalculations.L2_total.toLocaleString(undefined, {maximumFractionDigits:0})}m³ (${((waterCalculations.L2_total / waterCalculations.A2_total) * 100).toFixed(1)}%) | DC: ${waterCalculations.DC_total.toLocaleString(undefined, {maximumFractionDigits:0})}m³ (${((waterCalculations.DC_total / waterCalculations.A2_total) * 100).toFixed(1)}%)`}
-                trendColor="text-yellow-600 dark:text-yellow-400" 
-                iconBgColor={COLORS.warning}
-                isLoading={isLoading}
-              />
-              <WaterSummaryCard 
-                title="A3 - End-User Consumption" 
-                value={waterCalculations.A3_total.toLocaleString(undefined, {maximumFractionDigits:0})} 
-                unit="m³" 
-                icon={Users2} 
-                trend="End-Users + Direct (L3+DC)" 
-                trendColor="text-green-600 dark:text-green-400" 
-                iconBgColor={COLORS.success}
-                isLoading={isLoading}
-              />
+      {/* Add padding-top to account for fixed filter bar */}
+      <div className={activeWaterSubSection === 'Overview' ? 'pt-24' : ''}>
+        {activeWaterSubSection === 'Overview' && (
+          <>
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water System Hierarchy Levels ({selectedWaterMonth})</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <WaterSummaryCard 
+                  title="A1 - Main Source (L1)" 
+                  value={waterCalculations.A1_totalSupply.toLocaleString(undefined, {maximumFractionDigits:0})} 
+                  unit="m³" 
+                  icon={Droplets} 
+                  trend="Main Bulk (NAMA)" 
+                  trendColor="text-blue-600 dark:text-blue-400" 
+                  iconBgColor={COLORS.info}
+                  isLoading={isLoading}
+                />
+                <WaterSummaryCard 
+                  title="A2 - Primary Distribution" 
+                  value={waterCalculations.A2_total.toLocaleString(undefined, {maximumFractionDigits:0})} 
+                  unit="m³" 
+                  icon={Building} 
+                  trend={`L2: ${waterCalculations.L2_total.toLocaleString(undefined, {maximumFractionDigits:0})}m³ (${((waterCalculations.L2_total / waterCalculations.A2_total) * 100).toFixed(1)}%) | DC: ${waterCalculations.DC_total.toLocaleString(undefined, {maximumFractionDigits:0})}m³ (${((waterCalculations.DC_total / waterCalculations.A2_total) * 100).toFixed(1)}%)`}
+                  trendColor="text-yellow-600 dark:text-yellow-400" 
+                  iconBgColor={COLORS.warning}
+                  isLoading={isLoading}
+                />
+                <WaterSummaryCard 
+                  title="A3 - End-User Consumption" 
+                  value={waterCalculations.A3_total.toLocaleString(undefined, {maximumFractionDigits:0})} 
+                  unit="m³" 
+                  icon={Users2} 
+                  trend="End-Users + Direct (L3+DC)" 
+                  trendColor="text-green-600 dark:text-green-400" 
+                  iconBgColor={COLORS.success}
+                  isLoading={isLoading}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <WaterChartWrapper title="Water System Hierarchy Trends" subtitle="A1, A2, A3 flow by month">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <WaterChartWrapper title="Water System Hierarchy Trends" subtitle="A1, A2, A3 flow by month">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={monthlyWaterTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}/>
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}/>
+                    <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} itemStyle={{color: 'var(--foreground)'}} labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}/>
+                    <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
+                    <Line type="monotone" dataKey="A1" stroke={COLORS.info} name="A1 Supply (m³)" strokeWidth={2} dot={{r:3}} activeDot={{r:6}}/>
+                    <Line type="monotone" dataKey="A2" stroke={COLORS.warning} name="A2 Distribution (m³)" strokeWidth={2} dot={{r:3}} activeDot={{r:6}}/>
+                    <Line type="monotone" dataKey="A3" stroke={COLORS.success} name="A3 Consumption (m³)" strokeWidth={2} dot={{r:3}} activeDot={{r:6}}/>
+                  </LineChart>
+                </ResponsiveContainer>
+              </WaterChartWrapper>
+
+              <WaterChartWrapper title="Top Water Consumers" subtitle={`Highest consumption for ${selectedWaterMonth}`}>
+                <div className="overflow-y-auto h-full">
+                  <table className="w-full text-sm">
+                    <thead className="sticky top-0 bg-card z-10">
+                      <tr>
+                        <th className="text-left p-2 font-semibold text-muted-foreground">#</th>
+                        <th className="text-left p-2 font-semibold text-muted-foreground">Consumer</th>
+                        <th className="text-right p-2 font-semibold text-muted-foreground">Consumption (m³)</th>
+                        <th className="text-right p-2 font-semibold text-muted-foreground">Type</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topWaterConsumers.map((consumer, index) => (
+                        <tr key={consumer.name} className="border-t border-border hover:bg-muted/50">
+                          <td className="p-2 text-muted-foreground">{index + 1}</td>
+                          <td className="p-2 font-medium">{consumer.name}</td>
+                          <td className="p-2 text-right">{consumer.consumption.toLocaleString()}</td>
+                          <td className="p-2 text-right text-muted-foreground">{consumer.type}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </WaterChartWrapper>
+            </div>
+          </>
+        )}
+
+        {activeWaterSubSection === 'WaterLoss' && (
+          <>
+             <div className="mb-6">
+              <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water Loss Analysis ({selectedWaterMonth})</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <WaterSummaryCard 
+                  title="Stage 1 Variance" 
+                  value={Math.abs(waterCalculations.stage1Loss).toFixed(0)} 
+                  unit="m³" 
+                  icon={AlertCircle} 
+                  trend={waterCalculations.stage1Loss < 0 ? "Gain (Check Meters)" : "Loss (Trunk Main)"} 
+                  trendColor={waterCalculations.stage1Loss < 0 ? "text-orange-600 dark:text-orange-400" : "text-red-600 dark:text-red-400"} 
+                  iconBgColor={waterCalculations.stage1Loss < 0 ? COLORS.warning : COLORS.error}
+                  isLoading={isLoading}
+                />
+                <WaterSummaryCard 
+                  title="Stage 2 Loss" 
+                  value={waterCalculations.stage2Loss.toFixed(0)} 
+                  unit="m³" 
+                  icon={TrendingUp} 
+                  trend={`${waterCalculations.stage2LossPercent.toFixed(1)}% (Distribution Network)`} 
+                  trendColor="text-orange-600 dark:text-orange-400" 
+                  iconBgColor={COLORS.warning}
+                  isLoading={isLoading}
+                />
+                <WaterSummaryCard 
+                  title="Total System Variance" 
+                  value={Math.abs(waterCalculations.totalLoss).toFixed(0)} 
+                  unit="m³" 
+                  icon={Combine} 
+                  trend={`${Math.abs(waterCalculations.totalLossPercent).toFixed(1)}% Overall`} 
+                  trendColor={Math.abs(waterCalculations.totalLossPercent) > 15 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"} 
+                  iconBgColor={Math.abs(waterCalculations.totalLossPercent) > 15 ? COLORS.error : COLORS.success}
+                  isLoading={isLoading}
+                />
+              </div>
+            </div>
+            <WaterChartWrapper title="Water Balance Diagram" subtitle={`Hierarchical flow for ${selectedWaterMonth}`}>
+              <div className="space-y-3 p-1 sm:p-2 text-xs sm:text-sm overflow-x-auto">
+                <div className="text-center">
+                  <div className="inline-block bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                    <h3 className="font-bold text-blue-800 dark:text-blue-300">A1 - Main Supply (L1)</h3>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-200">{waterCalculations.A1_totalSupply.toLocaleString(undefined, {maximumFractionDigits:0})} m³</p>
+                  </div>
+                </div>
+                <div className="text-center">
+                    <div className={`text-sm ${waterCalculations.stage1Loss < 0 ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400'}`}>
+                      ↓ <span className="font-semibold">Stage 1:</span> {Math.abs(waterCalculations.stage1Loss).toFixed(0)} m³ ({Math.abs(waterCalculations.stage1LossPercent).toFixed(1)}%)
+                      {waterCalculations.stage1Loss < 0 && <span className="text-xs"> (Gain)</span>}
+                    </div>
+                </div>
+                <div className="text-center">
+                  <div className="inline-block bg-sky-100 dark:bg-sky-900/30 p-3 rounded-lg border-2 border-sky-300 dark:border-sky-700">
+                    <h3 className="font-bold text-sky-800 dark:text-sky-300">A2 - Primary Distribution (L2+DC)</h3>
+                    <p className="text-xl sm:text-2xl font-bold text-sky-900 dark:text-sky-200">{waterCalculations.A2_total.toLocaleString(undefined, {maximumFractionDigits:0})} m³</p>
+                  </div>
+                </div>
+                 <div className="text-center">
+                    <div className="text-orange-600 dark:text-orange-400 text-sm">
+                       ↓ <span className="font-semibold">Stage 2:</span> {waterCalculations.stage2Loss.toFixed(0)} m³ ({waterCalculations.stage2LossPercent.toFixed(1)}%)
+                    </div>
+                </div>
+                <div className="text-center">
+                  <div className="inline-block bg-green-100 dark:bg-green-900/30 p-3 rounded-lg border-2 border-green-300 dark:border-green-700">
+                    <h3 className="font-bold text-green-800 dark:text-green-300">A3 - End-User Consumption (L3+DC)</h3>
+                    <p className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-200">{waterCalculations.A3_total.toLocaleString(undefined, {maximumFractionDigits:0})} m³</p>
+                  </div>
+                </div>
+              </div>
+            </WaterChartWrapper>
+          </>
+        )}
+
+        {activeWaterSubSection === 'ZoneAnalysis' && (
+           <WaterChartWrapper title="Zone Bulk Consumption Analysis" subtitle={`Distribution for ${selectedWaterMonth}`}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlyWaterTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}/>
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}/>
+              <BarChart data={zoneConsumptionData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+                  <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}/>
+                  <YAxis dataKey="zone" type="category" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} width={80} />
                   <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} itemStyle={{color: 'var(--foreground)'}} labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}/>
                   <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
-                  <Line type="monotone" dataKey="A1" stroke={COLORS.info} name="A1 Supply (m³)" strokeWidth={2} dot={{r:3}} activeDot={{r:6}}/>
-                  <Line type="monotone" dataKey="A2" stroke={COLORS.warning} name="A2 Distribution (m³)" strokeWidth={2} dot={{r:3}} activeDot={{r:6}}/>
-                  <Line type="monotone" dataKey="A3" stroke={COLORS.success} name="A3 Consumption (m³)" strokeWidth={2} dot={{r:3}} activeDot={{r:6}}/>
-                </LineChart>
+                  <Bar dataKey="consumption" fill={COLORS.primary} name="Consumption (m³)" barSize={20} radius={[0, 5, 5, 0]}>
+                      {zoneConsumptionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
+                      ))}
+                  </Bar>
+              </BarChart>
+              </ResponsiveContainer>
+          </WaterChartWrapper>
+        )}
+
+        {activeWaterSubSection === 'Quality' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <WaterChartWrapper title="Water Quality Parameters" subtitle="Real-time sensor data (placeholder)">
+              <div className="space-y-3 mt-2 overflow-y-auto h-full pr-2">
+                {[
+                  { parameter: 'pH Level', value: 7.2, unit: '', status: 'normal', range: '6.5-8.5' },
+                  { parameter: 'Turbidity', value: 0.8, unit: 'NTU', status: 'good', range: '<1.0' },
+                  { parameter: 'Chlorine', value: 0.5, unit: 'mg/L', status: 'normal', range: '0.2-0.6' },
+                  { parameter: 'TDS', value: 245, unit: 'mg/L', status: 'normal', range: '<500' },
+                  { parameter: 'Temperature', value: 24.5, unit: '°C', status: 'normal', range: '20-30' },
+                  { parameter: 'Pressure', value: 2.1, unit: 'bar', status: 'good', range: '1.5-3.0' }
+                ].map((param, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border">
+                    <div>
+                      <h4 className="font-medium text-foreground">{param.parameter}</h4>
+                      <p className="text-xs text-muted-foreground">Range: {param.range}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-md font-bold text-foreground">{param.value} {param.unit}</p>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                        param.status === 'good' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                        param.status === 'normal' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                        'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                      }`}>
+                        {param.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </WaterChartWrapper>
+
+            <WaterChartWrapper title="System Performance Indicators" subtitle="Key operational metrics">
+              <div className="space-y-4 mt-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-medium text-foreground">System Efficiency</h4>
+                    <span className="text-lg font-bold text-green-600 dark:text-green-400">{waterCalculations.systemEfficiency.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2.5">
+                    <div 
+                      className="bg-green-500 h-2.5 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(0, Math.min(waterCalculations.systemEfficiency, 100))}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-center border border-blue-200 dark:border-blue-700">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total Meters</p>
+                    <p className="text-xl font-bold text-blue-800 dark:text-blue-200">{waterSystemData.length}</p>
+                  </div>
+                  <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-center border border-purple-200 dark:border-purple-700">
+                    <p className="text-xs text-purple-600 dark:text-purple-400 uppercase tracking-wide">Zone Meters (L2)</p>
+                    <p className="text-xl font-bold text-purple-800 dark:text-purple-200">{waterCalculations.zoneBulkMeters.length}</p>
+                  </div>
+                </div>
+              </div>
+            </WaterChartWrapper>
+          </div>
+        )}
+
+        {activeWaterSubSection === 'Overview' && (
+          <>
+            <WaterChartWrapper title="A2 Distribution by Type" subtitle={`Breakdown for ${selectedWaterMonth}`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={a2DistributionData.typeBreakdown}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label={({ name, percentage }) => `${name} (${percentage.toFixed(1)}%)`}
+                  >
+                    {a2DistributionData.typeBreakdown.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
+                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
+                  />
+                </PieChart>
               </ResponsiveContainer>
             </WaterChartWrapper>
 
-            <WaterChartWrapper title="Top Water Consumers" subtitle={`Highest consumption for ${selectedWaterMonth}`}>
-              <div className="overflow-y-auto h-full">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-card z-10">
-                    <tr>
-                      <th className="text-left p-2 font-semibold text-muted-foreground">#</th>
-                      <th className="text-left p-2 font-semibold text-muted-foreground">Consumer</th>
-                      <th className="text-right p-2 font-semibold text-muted-foreground">Consumption (m³)</th>
-                      <th className="text-right p-2 font-semibold text-muted-foreground">Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topWaterConsumers.map((consumer, index) => (
-                      <tr key={consumer.name} className="border-t border-border hover:bg-muted/50">
-                        <td className="p-2 text-muted-foreground">{index + 1}</td>
-                        <td className="p-2 font-medium">{consumer.name}</td>
-                        <td className="p-2 text-right">{consumer.consumption.toLocaleString()}</td>
-                        <td className="p-2 text-right text-muted-foreground">{consumer.type}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <WaterChartWrapper title="Top Consuming Zones" subtitle={`For ${selectedWaterMonth}`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={a2DistributionData.zoneBreakdown.slice(0, 5)}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <Tooltip 
+                    formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
+                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
+                  />
+                  <Bar dataKey="value" fill={COLORS.warning} name="Consumption (m³)" />
+                </BarChart>
+              </ResponsiveContainer>
             </WaterChartWrapper>
-          </div>
-        </>
-      )}
-
-      {activeWaterSubSection === 'WaterLoss' && (
-        <>
-           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water Loss Analysis ({selectedWaterMonth})</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <WaterSummaryCard 
-                title="Stage 1 Variance" 
-                value={Math.abs(waterCalculations.stage1Loss).toFixed(0)} 
-                unit="m³" 
-                icon={AlertCircle} 
-                trend={waterCalculations.stage1Loss < 0 ? "Gain (Check Meters)" : "Loss (Trunk Main)"} 
-                trendColor={waterCalculations.stage1Loss < 0 ? "text-orange-600 dark:text-orange-400" : "text-red-600 dark:text-red-400"} 
-                iconBgColor={waterCalculations.stage1Loss < 0 ? COLORS.warning : COLORS.error}
-                isLoading={isLoading}
-              />
-              <WaterSummaryCard 
-                title="Stage 2 Loss" 
-                value={waterCalculations.stage2Loss.toFixed(0)} 
-                unit="m³" 
-                icon={TrendingUp} 
-                trend={`${waterCalculations.stage2LossPercent.toFixed(1)}% (Distribution Network)`} 
-                trendColor="text-orange-600 dark:text-orange-400" 
-                iconBgColor={COLORS.warning}
-                isLoading={isLoading}
-              />
-              <WaterSummaryCard 
-                title="Total System Variance" 
-                value={Math.abs(waterCalculations.totalLoss).toFixed(0)} 
-                unit="m³" 
-                icon={Combine} 
-                trend={`${Math.abs(waterCalculations.totalLossPercent).toFixed(1)}% Overall`} 
-                trendColor={Math.abs(waterCalculations.totalLossPercent) > 15 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"} 
-                iconBgColor={Math.abs(waterCalculations.totalLossPercent) > 15 ? COLORS.error : COLORS.success}
-                isLoading={isLoading}
-              />
-            </div>
-          </div>
-          <WaterChartWrapper title="Water Balance Diagram" subtitle={`Hierarchical flow for ${selectedWaterMonth}`}>
-            <div className="space-y-3 p-1 sm:p-2 text-xs sm:text-sm overflow-x-auto">
-              <div className="text-center">
-                <div className="inline-block bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg border-2 border-blue-300 dark:border-blue-700">
-                  <h3 className="font-bold text-blue-800 dark:text-blue-300">A1 - Main Supply (L1)</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-200">{waterCalculations.A1_totalSupply.toLocaleString(undefined, {maximumFractionDigits:0})} m³</p>
-                </div>
-              </div>
-              <div className="text-center">
-                  <div className={`text-sm ${waterCalculations.stage1Loss < 0 ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400'}`}>
-                    ↓ <span className="font-semibold">Stage 1:</span> {Math.abs(waterCalculations.stage1Loss).toFixed(0)} m³ ({Math.abs(waterCalculations.stage1LossPercent).toFixed(1)}%)
-                    {waterCalculations.stage1Loss < 0 && <span className="text-xs"> (Gain)</span>}
-                  </div>
-              </div>
-              <div className="text-center">
-                <div className="inline-block bg-sky-100 dark:bg-sky-900/30 p-3 rounded-lg border-2 border-sky-300 dark:border-sky-700">
-                  <h3 className="font-bold text-sky-800 dark:text-sky-300">A2 - Primary Distribution (L2+DC)</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-sky-900 dark:text-sky-200">{waterCalculations.A2_total.toLocaleString(undefined, {maximumFractionDigits:0})} m³</p>
-                </div>
-              </div>
-               <div className="text-center">
-                  <div className="text-orange-600 dark:text-orange-400 text-sm">
-                     ↓ <span className="font-semibold">Stage 2:</span> {waterCalculations.stage2Loss.toFixed(0)} m³ ({waterCalculations.stage2LossPercent.toFixed(1)}%)
-                  </div>
-              </div>
-              <div className="text-center">
-                <div className="inline-block bg-green-100 dark:bg-green-900/30 p-3 rounded-lg border-2 border-green-300 dark:border-green-700">
-                  <h3 className="font-bold text-green-800 dark:text-green-300">A3 - End-User Consumption (L3+DC)</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-200">{waterCalculations.A3_total.toLocaleString(undefined, {maximumFractionDigits:0})} m³</p>
-                </div>
-              </div>
-            </div>
-          </WaterChartWrapper>
-        </>
-      )}
-
-      {activeWaterSubSection === 'ZoneAnalysis' && (
-         <WaterChartWrapper title="Zone Bulk Consumption Analysis" subtitle={`Distribution for ${selectedWaterMonth}`}>
-            <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={zoneConsumptionData} layout="vertical" margin={{ left: 20, right: 30 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
-                <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}/>
-                <YAxis dataKey="zone" type="category" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} width={80} />
-                <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} itemStyle={{color: 'var(--foreground)'}} labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}/>
-                <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
-                <Bar dataKey="consumption" fill={COLORS.primary} name="Consumption (m³)" barSize={20} radius={[0, 5, 5, 0]}>
-                    {zoneConsumptionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
-                    ))}
-                </Bar>
-            </BarChart>
-            </ResponsiveContainer>
-        </WaterChartWrapper>
-      )}
-
-      {activeWaterSubSection === 'Quality' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <WaterChartWrapper title="Water Quality Parameters" subtitle="Real-time sensor data (placeholder)">
-            <div className="space-y-3 mt-2 overflow-y-auto h-full pr-2">
-              {[
-                { parameter: 'pH Level', value: 7.2, unit: '', status: 'normal', range: '6.5-8.5' },
-                { parameter: 'Turbidity', value: 0.8, unit: 'NTU', status: 'good', range: '<1.0' },
-                { parameter: 'Chlorine', value: 0.5, unit: 'mg/L', status: 'normal', range: '0.2-0.6' },
-                { parameter: 'TDS', value: 245, unit: 'mg/L', status: 'normal', range: '<500' },
-                { parameter: 'Temperature', value: 24.5, unit: '°C', status: 'normal', range: '20-30' },
-                { parameter: 'Pressure', value: 2.1, unit: 'bar', status: 'good', range: '1.5-3.0' }
-              ].map((param, index) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border">
-                  <div>
-                    <h4 className="font-medium text-foreground">{param.parameter}</h4>
-                    <p className="text-xs text-muted-foreground">Range: {param.range}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-md font-bold text-foreground">{param.value} {param.unit}</p>
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                      param.status === 'good' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                      param.status === 'normal' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                      'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                    }`}>
-                      {param.status.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </WaterChartWrapper>
-
-          <WaterChartWrapper title="System Performance Indicators" subtitle="Key operational metrics">
-            <div className="space-y-4 mt-4">
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium text-foreground">System Efficiency</h4>
-                  <span className="text-lg font-bold text-green-600 dark:text-green-400">{waterCalculations.systemEfficiency.toFixed(1)}%</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div 
-                    className="bg-green-500 h-2.5 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.max(0, Math.min(waterCalculations.systemEfficiency, 100))}%` }}
-                  ></div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-center border border-blue-200 dark:border-blue-700">
-                  <p className="text-xs text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total Meters</p>
-                  <p className="text-xl font-bold text-blue-800 dark:text-blue-200">{waterSystemData.length}</p>
-                </div>
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-center border border-purple-200 dark:border-purple-700">
-                  <p className="text-xs text-purple-600 dark:text-purple-400 uppercase tracking-wide">Zone Meters (L2)</p>
-                  <p className="text-xl font-bold text-purple-800 dark:text-purple-200">{waterCalculations.zoneBulkMeters.length}</p>
-                </div>
-              </div>
-            </div>
-          </WaterChartWrapper>
-        </div>
-      )}
-
-      {activeWaterSubSection === 'Overview' && (
-        <>
-          <WaterChartWrapper title="A2 Distribution by Type" subtitle={`Breakdown for ${selectedWaterMonth}`}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={a2DistributionData.typeBreakdown}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label={({ name, percentage }) => `${name} (${percentage.toFixed(1)}%)`}
-                >
-                  {a2DistributionData.typeBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
-                  contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </WaterChartWrapper>
-
-          <WaterChartWrapper title="Top Consuming Zones" subtitle={`For ${selectedWaterMonth}`}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={a2DistributionData.zoneBreakdown.slice(0, 5)}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                <Tooltip 
-                  formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
-                  contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
-                />
-                <Bar dataKey="value" fill={COLORS.warning} name="Consumption (m³)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </WaterChartWrapper>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
