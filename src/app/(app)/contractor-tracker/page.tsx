@@ -349,7 +349,7 @@ export default function ContractorTrackerPage() {
       </div>
 
       {/* Filters */}
-      <Card className="p-4">
+      <Card className="p-4 sticky top-[80px] z-10">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
             <label className="block text-sm font-medium text-gray-700 mb-1">Search Contractors</label>

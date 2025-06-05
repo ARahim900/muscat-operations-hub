@@ -348,7 +348,7 @@ Recommendations:
     const categoryOptions = [{ value: "All Categories", label: "All Categories" }, ...distinctCategories.map(c => ({ value: c, label: c }))];
     
     return (
-        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden sticky top-[70px] md:top-[68px] z-10 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden sticky top-[72px] z-10 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <StyledSelect 
                   id="monthFilter" 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -133,24 +132,24 @@ const rawStpDataString = `Date:	Total Treated Water Produced - m³	Total TSE Wat
 11/10/2024	541	438	549	12	240	309
 12/10/2024	526	512	511	8	160	351
 13/10/2024	405	345	332	6	120	212
-14/10/2024	601	548	509	7	140	369
-15/10/2024	569	489	581	10	200	381
-16/10/2024	607	538	548	8	160	388
-17/10/2024	659	575	636	11	220	416
-18/10/2024	677	597	565	10	200	365
-19/10/2024	583	509	589	8	160	429
-20/10/2024	614	542	537	10	200	337
-21/10/2024	585	513	539	12	240	299
-22/10/2024	606	528	525	9	180	345
-23/10/2024	614	532	592	11	220	372
-24/10/2024	522	442	546	11	220	326
-25/10/2024	601	524	603	9	180	423
-26/10/2024	636	557	588	12	240	348
-27/10/2024	594	487	523	6	120	403
-28/10/2024	586	535	595	9	180	415
-29/10/2024	613	535	511	7	140	371
-30/10/2024	583	506	543	9	180	363
-31/10/2024	577	500	577	7	140	437
+14/07/2024	601	548	509	7	140	369
+15/07/2024	569	489	581	10	200	381
+16/07/2024	607	538	548	8	160	388
+17/07/2024	659	575	636	11	220	416
+18/07/2024	677	597	565	10	200	365
+19/07/2024	583	509	589	8	160	429
+20/07/2024	614	542	537	10	200	337
+21/07/2024	585	513	539	12	240	299
+22/07/2024	606	528	525	9	180	345
+23/07/2024	614	532	592	11	220	372
+24/07/2024	522	442	546	11	220	326
+25/07/2024	601	524	603	9	180	423
+26/07/2024	636	557	588	12	240	348
+27/07/2024	594	487	523	6	120	403
+28/07/2024	586	535	595	9	180	415
+29/07/2024	613	535	511	7	140	371
+30/07/2024	583	506	543	9	180	363
+31/07/2024	577	500	577	7	140	437
 01/11/2024	553	476	476	5	100	376
 02/11/2024	609	513	553	8	160	393
 03/11/2024	494	419	498	8	160	338
@@ -361,7 +360,32 @@ const rawStpDataString = `Date:	Total Treated Water Produced - m³	Total TSE Wat
 29/05/2025	749	604	638	8	160	478
 30/05/2025	750	609	563	7	140	423`.trim();
 
-const parseStpData = (rawData) => {
+interface StpDataRow {
+  date: string;
+  "Total Treated Water Produced - m³": number;
+  "Total TSE Water Output to Irrigation - m³": number;
+  "Total Inlet Sewage Received from (MB+Tnk) -m³": number;
+  "Number of Tankers Discharged:": number;
+  "Expected Tanker Volume (m³) (20 m3)": number;
+  "Direct In line Sewage (MB)": number;
+}
+
+interface ParsedStpData {
+  date: string;
+  treatedWater: number;
+  tseOutput: number;
+  totalInlet: number;
+  tankersDischarge: number;
+  expectedTankerVolume: number;
+  directSewage: number;
+  treatmentEfficiency: number;
+  irrigationEfficiency: number;
+  tankerPercentage: number;
+  parsedDate: Date | null;
+  month: string;
+}
+
+const parseStpData = (rawData: string): ParsedStpData[] => {
   const lines = rawData.split('\n');
   const headerLine = lines[0].split('\t').map(h => h.trim());
   const dataLines = lines.slice(1);
@@ -407,8 +431,28 @@ const PLANT_DESIGN_CAPACITY = 750; // m³/day
 // SHARED COMPONENTS (already defined in electricity, but scoped here for clarity)
 // ===============================
 
-const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }) => {
-  const IconComponent = icon;
+interface SummaryCardProps {
+  title: string;
+  value: string | number;
+  icon: any; // Assuming LucideIcon type, adjust if needed
+  unit: string;
+  trend?: string;
+  trendColor?: string;
+  iconBgColor?: string;
+  isLoading?: boolean;
+}
+
+const SummaryCard: React.FC<SummaryCardProps> = ({
+  title,
+  value,
+  icon: Icon,
+  unit,
+  trend,
+  trendColor,
+  iconBgColor,
+  isLoading
+}) => {
+  const IconComponent = Icon;
   return (
     <div className="bg-background p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 border border-border dark:bg-slate-800 dark:border-slate-700">
       <div className="flex justify-between items-start mb-3">
@@ -434,7 +478,14 @@ const SummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor,
   );
 };
 
-const ChartWrapper = ({ title, children, subtitle, actions }) => (
+interface ChartWrapperProps {
+  title: string;
+  children: React.ReactNode;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}
+
+const ChartWrapper: React.FC<ChartWrapperProps> = ({ title, children, subtitle, actions }) => (
   <div className="bg-background p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-border dark:bg-slate-800 dark:border-slate-700">
     <div className="flex justify-between items-start mb-4">
       <div>
@@ -449,7 +500,27 @@ const ChartWrapper = ({ title, children, subtitle, actions }) => (
   </div>
 );
 
-const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disabled }) => {
+interface StyledSelectProps {
+  label: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: Array<{ value: string; label: string }>;
+  id: string;
+  icon?: any; // Assuming LucideIcon type, adjust if needed
+  disabled?: boolean;
+  className?: string;
+}
+
+const StyledSelect: React.FC<StyledSelectProps> = ({
+  label,
+  value,
+  onChange,
+  options,
+  id,
+  icon: Icon,
+  disabled,
+  className
+}) => {
     return (
         <div>
             <label htmlFor={id} className="block text-sm font-medium text-foreground mb-1">{label}</label>
@@ -459,7 +530,7 @@ const StyledSelect = ({ label, value, onChange, options, id, icon: Icon, disable
                   value={value} 
                   onChange={onChange} 
                   disabled={disabled}
-                  className="appearance-none w-full p-2.5 pr-10 border border-input rounded-lg text-sm focus:ring-2 focus:ring-ring focus:outline-none bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`appearance-none w-full p-2.5 pr-10 border border-input rounded-lg text-sm focus:ring-2 focus:ring-ring focus:outline-none bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
                 >
                     {options.map(option => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
                 </select>
@@ -526,7 +597,7 @@ const STPPlantModule = () => {
 
   // Monthly summary data for all months
   const monthlyData = useMemo(() => {
-    const monthlyMap = {};
+    const monthlyMap: { [key: string]: { month: string; treatedWater: number; tseOutput: number; totalInlet: number; tankersDischarge: number; directSewage: number; days: number; } } = {};
     
     initialStpData.forEach(item => {
       if (!item.parsedDate) return;
@@ -552,7 +623,7 @@ const STPPlantModule = () => {
       monthlyMap[monthKey].days++;
     });
     
-    return Object.values(monthlyMap).map((month: any) => ({
+    return Object.values(monthlyMap).map((month) => ({
       ...month,
       avgDaily: Math.round(month.treatedWater / month.days),
       efficiency: month.totalInlet > 0 ? Math.round((month.treatedWater / month.totalInlet) * 1000) / 10 : 0,
@@ -739,7 +810,7 @@ const STPPlantModule = () => {
     ];
     
     return (
-        <div className="bg-background shadow p-4 rounded-lg mb-6 print:hidden sticky top-[70px] md:top-[68px] z-10 border border-border dark:bg-slate-800 dark:border-slate-700">
+        <div className="bg-background shadow p-4 rounded-lg mb-6 print:hidden sticky top-[72px] z-10 border border-border dark:bg-slate-800 dark:border-slate-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <StyledSelect 
                   id="monthFilter" 

@@ -1,9 +1,9 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Label as RechartsLabel, Area } from 'recharts';
 import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, Power, DollarSign, Filter, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, Menu, Moon, Sun, Download, Settings, AlertCircle, CheckCircle, Wifi, WifiOff } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // ===============================
 // DESIGN SYSTEM & CONSTANTS
@@ -53,7 +53,29 @@ Z8-12 Villa,4300108,Zone_08,Residential (Villa),ZONE 8 (Bulk Zone 8),L3,134,128,
 Coffee Shop VS,4300110,Village_Square,Retail,Village Square (Zone Bulk),L3,234,225,230,246,263,252,257,268,246,257,254,244,257,246,263,271
 Supermarket VS,4300111,Village_Square,Retail,Village Square (Zone Bulk),L3,456,438,447,478,511,491,501,523,478,501,494,474,501,478,511,527`;
 
-const parseWaterSystemData = (rawData) => {
+interface WaterDataRow {
+  "Meter Label": string;
+  "Acct #": string;
+  Zone: string;
+  Type: string;
+  "Parent Meter": string;
+  Label: string;
+  [month: string]: string | number; // For the monthly consumption data
+}
+
+interface ParsedWaterData {
+  id: number;
+  meterLabel: string;
+  acctNo: string;
+  zone: string;
+  type: string;
+  parentMeter: string;
+  label: string;
+  consumption: { [key: string]: number }; // Use index signature for dynamic month keys
+  totalConsumption: number;
+}
+
+const parseWaterSystemData = (rawData: string): ParsedWaterData[] => {
   const lines = rawData.split('\n');
   const headers = lines[0].split(',').map(h => h.trim());
   const dataLines = lines.slice(1);
@@ -61,7 +83,16 @@ const parseWaterSystemData = (rawData) => {
 
   return dataLines.map((line, index) => {
     const values = line.split(',').map(v => v.trim());
-    const entry = {
+    const consumption: { [key: string]: number } = {};
+    let totalConsumption = 0;
+
+    monthColumns.forEach((month, i) => {
+      const consumptionValue = parseFloat(values[6 + i]) || 0;
+      consumption[month] = consumptionValue;
+      totalConsumption += consumptionValue;
+    });
+
+    return {
       id: index + 1,
       meterLabel: values[0] || 'N/A',
       acctNo: values[1] || 'N/A',
@@ -69,30 +100,55 @@ const parseWaterSystemData = (rawData) => {
       type: values[3] || 'N/A',
       parentMeter: values[4] || 'N/A',
       label: values[5] || 'N/A',
-      consumption: {},
-      totalConsumption: 0,
+      consumption: consumption,
+      totalConsumption: parseFloat(totalConsumption.toFixed(2)),
     };
-
-    let totalConsumption = 0;
-    monthColumns.forEach((month, i) => {
-      const consumptionValue = parseFloat(values[6 + i]) || 0;
-      entry.consumption[month] = consumptionValue;
-      totalConsumption += consumptionValue;
-    });
-    
-    entry.totalConsumption = parseFloat(totalConsumption.toFixed(2));
-    return entry;
   });
 };
 
-const waterSystemData = parseWaterSystemData(waterRawDataString);
+const waterSystemData: ParsedWaterData[] = parseWaterSystemData(waterRawDataString);
 const waterMonthsAvailable = waterSystemData.length > 0 && waterSystemData[0].consumption ? Object.keys(waterSystemData[0].consumption) : [];
+
+// Add verification function
+const verifyMonthlyTotals = () => {
+  const monthlyTotals: { [key: string]: number } = {};
+  
+  waterSystemData.forEach(item => {
+    Object.entries(item.consumption).forEach(([month, value]) => {
+      if (!monthlyTotals[month]) {
+        monthlyTotals[month] = 0;
+      }
+      monthlyTotals[month] += value;
+    });
+  });
+
+  return Object.entries(monthlyTotals)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, total]) => ({
+      month,
+      total: Math.round(total)
+    }));
+};
+
+// Log verification results
+console.log('Monthly Totals Verification:', verifyMonthlyTotals());
 
 // ===============================
 // SHARED COMPONENTS
 // ===============================
 
-const WaterSummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }) => {
+interface WaterSummaryCardProps {
+  title: string;
+  value: string | number;
+  icon: any; // Adjust with the correct LucideIcon type if available
+  unit: string;
+  trend?: string;
+  trendColor?: string;
+  iconBgColor?: string;
+  isLoading?: boolean;
+}
+
+const WaterSummaryCard: React.FC<WaterSummaryCardProps> = ({ title, value, icon, unit, trend, trendColor, iconBgColor, isLoading }) => {
   const IconComponent = icon;
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
@@ -119,7 +175,14 @@ const WaterSummaryCard = ({ title, value, icon, unit, trend, trendColor, iconBgC
   );
 };
 
-const WaterChartWrapper = ({ title, children, subtitle, actions }) => (
+interface WaterChartWrapperProps {
+  title: string;
+  children: React.ReactNode;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}
+
+const WaterChartWrapper: React.FC<WaterChartWrapperProps> = ({ title, children, subtitle, actions }) => (
   <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
     <div className="flex justify-between items-start mb-4">
       <div>
@@ -134,18 +197,40 @@ const WaterChartWrapper = ({ title, children, subtitle, actions }) => (
   </div>
 );
 
-const WaterStyledSelect = ({ label, value, onChange, options, id, icon: Icon, disabled }) => {
+interface WaterStyledSelectProps {
+  label: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: Array<{ value: string; label: string }>;
+  id: string;
+  icon?: any; // Adjust with the correct LucideIcon type if available
+  disabled?: boolean;
+  className?: string;
+}
+
+const WaterStyledSelect: React.FC<WaterStyledSelectProps> = ({
+    label,
+    value,
+    onChange,
+    options,
+    id,
+    icon: Icon,
+    disabled,
+    className
+  }) => {
     return (
         <div>
             <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">{label}</label>
             <div className="relative">
-                <select 
-                  id={id} 
-                  value={value} 
-                  onChange={onChange} 
+                <select
+                  id={id}
+                  value={value}
+                  onChange={onChange}
                   disabled={disabled}
-                  className="appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-primaryLight" 
-                  style={{ '--tw-ring-color': COLORS.primaryLight, ringColor: COLORS.primaryLight }} 
+                  className={cn(
+                    "appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-primaryLight",
+                    className
+                  )}
                 >
                     {options.map(option => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
                 </select>
@@ -155,7 +240,7 @@ const WaterStyledSelect = ({ label, value, onChange, options, id, icon: Icon, di
             </div>
         </div>
     );
-};
+  };
 
 // ===============================
 // WATER ANALYSIS MODULE
@@ -235,22 +320,38 @@ const WaterAnalysisModule = () => {
 
   const zoneConsumptionData = useMemo(() => {
     const monthData = selectedWaterMonth;
-    const zoneData = {};
-    
+    const zoneData: { [key: string]: { zone: string; consumption: number; type: string } } = {};
+
     const L2_meters = waterSystemData.filter(item => item.label === 'L2');
     L2_meters.forEach(meter => {
       const zone = meter.zone;
       if (!zoneData[zone]) {
-        zoneData[zone] = { zone, consumption: 0, type: 'Zone Bulk' };
+        zoneData[zone] = { zone: zone, consumption: 0, type: 'Zone Bulk' };
       }
       zoneData[zone].consumption += meter.consumption[monthData] || 0;
     });
 
-    return Object.values(zoneData).map(zone => ({
+    // Add other meter types to zoneData as needed, ensuring they have the same structure
+    const DC_meters = waterSystemData.filter(item => item.label === 'DC');
+    DC_meters.forEach(meter => {
+      const zone = meter.zone; // Assuming DC meters also have a zone property
+       if (!zoneData[zone]) {
+        zoneData[zone] = { zone: zone, consumption: 0, type: meter.type || 'Direct Connection' }; // Use meter.type or a default
+      }
+       zoneData[zone].consumption += meter.consumption[monthData] || 0;
+    });
+
+    // Filter out zones if a specific zone is selected
+    const filteredZoneData = selectedZone === 'All Zones'
+        ? Object.values(zoneData)
+        : Object.values(zoneData).filter(z => z.zone === selectedZone);
+
+    return filteredZoneData.map(zone => ({
       ...zone,
-      consumption: parseFloat(zone.consumption.toFixed(1))
-    })).sort((a, b) => b.consumption - a.consumption);
-  }, [selectedWaterMonth]);
+      name: zone.zone, // Add a name property for charts
+      value: zone.consumption, // Add a value property for charts
+    }));
+  }, [selectedWaterMonth, selectedZone, waterSystemData]); // Added waterSystemData and selectedZone to dependencies
 
   const topWaterConsumers = useMemo(() => {
     const monthData = selectedWaterMonth;
@@ -268,83 +369,119 @@ const WaterAnalysisModule = () => {
   }, [selectedWaterMonth]);
 
   const WaterSubNav = () => {
-    const subSections = [
-      { name: 'Overview', id: 'Overview', icon: LayoutDashboard },
-      { name: 'Water Loss Analysis', id: 'WaterLoss', icon: TrendingUp },
-      { name: 'Zone Analysis', id: 'ZoneAnalysis', icon: BarChart2 },
-      { name: 'Quality Metrics', id: 'Quality', icon: CheckCircle },
+    const isClientDarkMode = typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
+    const waterSubSections = [
+      { id: 'Overview', name: 'Overview', icon: LayoutDashboard },
+      { id: 'Detailed Analysis', name: 'Detailed Analysis', icon: BarChart2 },
+      { id: 'Meter Data', name: 'Meter Data', icon: List },
     ];
-    
+
     return (
-      <div className="mb-6 print:hidden flex justify-center">
-        <div className="bg-white shadow-md rounded-full p-1.5 inline-flex space-x-1 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-          {subSections.map((tab) => {
-            const isActive = activeWaterSubSection === tab.id;
-            return ( 
-              <button 
-                key={tab.id} 
-                onClick={() => setActiveWaterSubSection(tab.id)} 
-                className={`px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 transition-all duration-200 ease-in-out transform hover:scale-105`} 
-                style={{ 
-                    backgroundColor: isActive ? COLORS.primary : 'transparent', 
-                    color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
-                }} 
-                onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
-                onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
-              > 
-                <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
-                <span>{tab.name}</span> 
-              </button> 
-            );
-          })}
+        <div className="mb-6 print:hidden flex justify-center">
+            <div className="bg-background shadow-md rounded-full p-1.5 inline-flex space-x-1 border border-border dark:bg-slate-800 dark:border-slate-700">
+                {waterSubSections.map((tab) => {
+                    const isActive = activeWaterSubSection === tab.id;
+                    return ( 
+                      <button 
+                        key={tab.id} 
+                        onClick={() => setActiveWaterSubSection(tab.id)} 
+                        className={`px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 transition-all duration-200 ease-in-out transform hover:scale-105`} 
+                        style={{ 
+                            backgroundColor: isActive ? COLORS.primary : 'transparent', 
+                            color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
+                        }} 
+                        onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
+                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
+                      > 
+                        <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
+                        <span>{tab.name}</span> 
+                      </button> 
+                    );
+                })}
+            </div>
         </div>
-      </div>
     );
   };
 
   const WaterFilterBar = () => {
-    const monthOptions = waterMonthsAvailable.map(m => ({ value: m, label: m }));
-    const distinctZones = [...new Set(waterSystemData.map(item => item.zone))].filter(zone => zone && zone !== 'N/A' && zone !== 'MAIN');
-    const zoneOptions = [{ value: 'All Zones', label: 'All Zones' }, ...distinctZones.map(z => ({ value: z, label: z }))];
+    const monthOptions = [{ value: "All Months", label: "All Months" }, ...waterMonthsAvailable.map(m => ({ value: m, label: m }))];
+    const zoneOptions = [{ value: "All Zones", label: "All Zones" }, ...[...new Set(waterSystemData.map(d => d.zone))].filter(Boolean).sort().map(z => ({ value: z, label: z }))];
     
     return (
-      <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden sticky top-[70px] md:top-[68px] z-10 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-          <WaterStyledSelect 
-            id="waterMonthFilter" 
-            label="Select Month" 
-            value={selectedWaterMonth} 
-            onChange={(e) => setSelectedWaterMonth(e.target.value)} 
-            options={monthOptions} 
-            icon={CalendarDays}
-            disabled={waterMonthsAvailable.length === 0}
-          />
-          <WaterStyledSelect 
-            id="zoneFilter" 
-            label="Filter by Zone" 
-            value={selectedZone} 
-            onChange={(e) => setSelectedZone(e.target.value)} 
-            options={zoneOptions} 
-            icon={Building}
-            disabled={distinctZones.length === 0}
-          />
-          <button 
-            onClick={() => { 
-              setSelectedWaterMonth(waterMonthsAvailable.length > 0 ? waterMonthsAvailable[waterMonthsAvailable.length -1] : 'Mar-25'); 
-              setSelectedZone('All Zones'); 
-            }} 
-            className="text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 h-[46px] w-full lg:w-auto hover:shadow-lg" 
-            style={{ backgroundColor: COLORS.primaryDark }} 
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = COLORS.primary} 
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = COLORS.primaryDark}
-          > 
-            <Filter size={16}/> 
-            <span>Reset Filters</span> 
-          </button>
+        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden sticky top-[80px] z-10 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                <WaterStyledSelect 
+                  id="waterMonthFilter" 
+                  label="Filter by Month" 
+                  value={selectedWaterMonth} 
+                  onChange={(e) => setSelectedWaterMonth(e.target.value)} 
+                  options={monthOptions} 
+                  icon={CalendarDays}
+                />
+                <WaterStyledSelect 
+                  id="waterZoneFilter" 
+                  label="Filter by Zone" 
+                  value={selectedZone} 
+                  onChange={(e) => setSelectedZone(e.target.value)} 
+                  options={zoneOptions} 
+                  icon={Building}
+                  disabled={zoneOptions.length <= 1}
+                />
+                <button 
+                  onClick={() => { setSelectedWaterMonth('All Months'); setSelectedZone('All Zones'); }} 
+                  className="text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 h-[46px] w-full lg:w-auto hover:shadow-lg" 
+                  style={{ backgroundColor: COLORS.primaryDark }} 
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = COLORS.primary} 
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = COLORS.primaryDark}
+                > 
+                  <Filter size={16}/> 
+                  <span>Reset Filters</span> 
+                </button>
+            </div>
         </div>
-      </div>
     );
   };
+
+  const a2DistributionData = useMemo(() => {
+    const monthData = selectedWaterMonth;
+    const typeBreakdown: { [key: string]: number } = {};
+    const zoneBreakdown: { [key: string]: number } = {};
+
+    // Calculate type breakdown
+    waterSystemData.forEach(item => {
+      if (item.label === 'L2' || item.label === 'DC') {
+        const type = item.type;
+        if (!typeBreakdown[type]) {
+          typeBreakdown[type] = 0;
+        }
+        typeBreakdown[type] += item.consumption[monthData] || 0;
+
+        // Calculate zone breakdown
+        const zone = item.zone;
+        if (!zoneBreakdown[zone]) {
+          zoneBreakdown[zone] = 0;
+        }
+        zoneBreakdown[zone] += item.consumption[monthData] || 0;
+      }
+    });
+
+    return {
+      typeBreakdown: Object.entries(typeBreakdown)
+        .map(([type, consumption]) => ({
+          name: type,
+          value: consumption,
+          percentage: (consumption / waterCalculations.A2_total) * 100
+        }))
+        .sort((a, b) => b.value - a.value),
+      zoneBreakdown: Object.entries(zoneBreakdown)
+        .map(([zone, consumption]) => ({
+          name: zone,
+          value: consumption,
+          percentage: (consumption / waterCalculations.A2_total) * 100
+        }))
+        .sort((a, b) => b.value - a.value)
+    };
+  }, [selectedWaterMonth, waterCalculations.A2_total]);
 
   if (waterMonthsAvailable.length === 0) {
     return (
@@ -362,7 +499,8 @@ const WaterAnalysisModule = () => {
   return (
     <div className="space-y-6">
       <WaterSubNav />
-      <WaterFilterBar />
+
+      {activeWaterSubSection === 'Overview' && <WaterFilterBar />}
 
       {activeWaterSubSection === 'Overview' && (
         <>
@@ -384,7 +522,7 @@ const WaterAnalysisModule = () => {
                 value={waterCalculations.A2_total.toLocaleString(undefined, {maximumFractionDigits:0})} 
                 unit="m³" 
                 icon={Building} 
-                trend="Zone Bulk + Direct (L2+DC)" 
+                trend={`L2: ${waterCalculations.L2_total.toLocaleString(undefined, {maximumFractionDigits:0})}m³ (${((waterCalculations.L2_total / waterCalculations.A2_total) * 100).toFixed(1)}%) | DC: ${waterCalculations.DC_total.toLocaleString(undefined, {maximumFractionDigits:0})}m³ (${((waterCalculations.DC_total / waterCalculations.A2_total) * 100).toFixed(1)}%)`}
                 trendColor="text-yellow-600 dark:text-yellow-400" 
                 iconBgColor={COLORS.warning}
                 isLoading={isLoading}
@@ -419,45 +557,28 @@ const WaterAnalysisModule = () => {
             </WaterChartWrapper>
 
             <WaterChartWrapper title="Top Water Consumers" subtitle={`Highest consumption for ${selectedWaterMonth}`}>
-                <div className="overflow-y-auto h-full">
+              <div className="overflow-y-auto h-full">
                 <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-card z-10">
+                  <thead className="sticky top-0 bg-card z-10">
                     <tr>
-                        <th className="text-left p-2 font-semibold text-muted-foreground">#</th>
-                        <th className="text-left p-2 font-semibold text-muted-foreground">Meter</th>
-                        <th className="text-left p-2 font-semibold text-muted-foreground hidden sm:table-cell">Type</th>
-                        <th className="text-right p-2 font-semibold text-muted-foreground">m³</th>
-                        <th className="text-center p-2 font-semibold text-muted-foreground hidden sm:table-cell">Lvl</th>
+                      <th className="text-left p-2 font-semibold text-muted-foreground">#</th>
+                      <th className="text-left p-2 font-semibold text-muted-foreground">Consumer</th>
+                      <th className="text-right p-2 font-semibold text-muted-foreground">Consumption (m³)</th>
+                      <th className="text-right p-2 font-semibold text-muted-foreground">Type</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                  </thead>
+                  <tbody>
                     {topWaterConsumers.map((consumer, index) => (
-                        <tr key={index} className="border-b border-border hover:bg-muted/50">
-                        <td className="p-2">
-                            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold text-white ${
-                            index < 3 ? 'bg-yellow-500' : 'bg-slate-400'
-                            }`}>
-                            {index + 1}
-                            </span>
-                        </td>
-                        <td className="p-2 font-medium text-foreground truncate max-w-[100px] sm:max-w-xs" title={consumer.name}>{consumer.name}</td>
-                        <td className="p-2 text-muted-foreground hidden sm:table-cell">{consumer.type}</td>
-                        <td className="p-2 text-right font-semibold text-foreground">{consumer.consumption.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                        <td className="p-2 text-center hidden sm:table-cell">
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                            consumer.label === 'L1' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                            consumer.label === 'L2' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                            consumer.label === 'L3' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                            }`}>
-                            {consumer.label}
-                            </span>
-                        </td>
-                        </tr>
+                      <tr key={consumer.name} className="border-t border-border hover:bg-muted/50">
+                        <td className="p-2 text-muted-foreground">{index + 1}</td>
+                        <td className="p-2 font-medium">{consumer.name}</td>
+                        <td className="p-2 text-right">{consumer.consumption.toLocaleString()}</td>
+                        <td className="p-2 text-right text-muted-foreground">{consumer.type}</td>
+                      </tr>
                     ))}
-                    </tbody>
+                  </tbody>
                 </table>
-                </div>
+              </div>
             </WaterChartWrapper>
           </div>
         </>
@@ -614,6 +735,49 @@ const WaterAnalysisModule = () => {
             </div>
           </WaterChartWrapper>
         </div>
+      )}
+
+      {activeWaterSubSection === 'Overview' && (
+        <>
+          <WaterChartWrapper title="A2 Distribution by Type" subtitle={`Breakdown for ${selectedWaterMonth}`}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={a2DistributionData.typeBreakdown}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ name, percentage }) => `${name} (${percentage.toFixed(1)}%)`}
+                >
+                  {a2DistributionData.typeBreakdown.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
+                  contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </WaterChartWrapper>
+
+          <WaterChartWrapper title="Top Consuming Zones" subtitle={`For ${selectedWaterMonth}`}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={a2DistributionData.zoneBreakdown.slice(0, 5)}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
+                  contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
+                />
+                <Bar dataKey="value" fill={COLORS.warning} name="Consumption (m³)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </WaterChartWrapper>
+        </>
       )}
     </div>
   );
