@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Label as RechartsLabel, Area } from 'recharts';
 import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, Power, DollarSign, Filter, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, Menu, Moon, Sun, Download, Settings, AlertCircle, CheckCircle, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
+import { UniversalFilterBar, useFilterState } from '@/components/common/FilterBar';
 
 // ===============================
 // DESIGN SYSTEM & CONSTANTS
@@ -209,38 +210,6 @@ const ChartWrapper: React.FC<ChartWrapperProps> = ({ title, children, subtitle, 
   </div>
 );
 
-interface StyledSelectProps {
-  label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: Array<{ value: string; label: string }>;
-  id: string;
-  icon?: React.ComponentType<{ size?: number | string }>;
-  disabled?: boolean;
-}
-
-const StyledSelect: React.FC<StyledSelectProps> = ({ label, value, onChange, options, id, icon: Icon, disabled }) => {
-    return (
-        <div>
-            <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">{label}</label>
-            <div className="relative">
-                <select 
-                  id={id} 
-                  value={value} 
-                  onChange={onChange} 
-                  disabled={disabled}
-                  className="appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-purple-400"
-                >
-                    {options.map(option => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 dark:text-slate-400">
-                    {Icon ? <Icon size={16} /> : <ChevronDown size={16} />}
-                </div>
-            </div>
-        </div>
-    );
-};
-
 const LoadingSpinner = ({ size = 24 }: { size?: number }) => (
   <div className="flex justify-center items-center">
     <div 
@@ -258,17 +227,20 @@ const LoadingSpinner = ({ size = 24 }: { size?: number }) => (
 // ===============================
 const ElectricitySystemModule: React.FC = () => {
   const [activeSubSection, setActiveSubSection] = useState<string>('Dashboard');
-  const [selectedMonth, setSelectedMonth] = useState<string>("All Months"); 
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
   const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string>("");
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
   const [isClientDarkMode, setIsClientDarkMode] = useState<boolean>(false);
 
+  // Filter state management using the new hook
+  const { filters, updateFilter, resetFilters } = useFilterState({
+    month: "All Months",
+    category: "All Categories"
+  });
+
   useEffect(() => {
     setIsClientDarkMode(document.documentElement.classList.contains('dark'));
   }, []);
-
 
   const distinctCategories = useMemo(() => 
     [...new Set(initialElectricityData.map(d => d.category))].sort(), 
@@ -276,17 +248,17 @@ const ElectricitySystemModule: React.FC = () => {
   
   const filteredElectricityData = useMemo(() => {
     return initialElectricityData.filter(item => {
-      const categoryMatch = selectedCategory === "All Categories" || item.category === selectedCategory;
+      const categoryMatch = filters.category === "All Categories" || item.category === filters.category;
       return categoryMatch; 
     });
-  }, [selectedCategory]);
+  }, [filters.category]);
 
   const kpiAndTableData = useMemo(() => {
-    if (selectedMonth === "All Months") {
+    if (filters.month === "All Months") {
         return filteredElectricityData.map(item => ({ ...item, }));
     }
-    return filteredElectricityData.map(item => ({ ...item, totalConsumption: item.consumption[selectedMonth] || 0, }));
-  }, [filteredElectricityData, selectedMonth]);
+    return filteredElectricityData.map(item => ({ ...item, totalConsumption: item.consumption[filters.month] || 0, }));
+  }, [filteredElectricityData, filters.month]);
 
   const totalConsumptionKWh = useMemo(() => kpiAndTableData.reduce((acc, curr) => acc + curr.totalConsumption, 0), [kpiAndTableData]);
   const totalCostOMR = useMemo(() => totalConsumptionKWh * OMR_PER_KWH, [totalConsumptionKWh]);
@@ -307,6 +279,32 @@ const ElectricitySystemModule: React.FC = () => {
     return Object.entries(typeData).map(([name, value]) => ({ name, value: parseFloat(value.toFixed(2)) })).filter(item => item.value > 0).sort((a,b) => b.value - a.value);
   }, [kpiAndTableData]);
 
+  // Filter configuration for the universal filter bar
+  const filterConfig = [
+    {
+      id: 'monthFilter',
+      label: 'Filter by Month',
+      value: filters.month,
+      onChange: (value: string) => updateFilter('month', value),
+      options: [
+        { value: "All Months", label: "All Months" },
+        ...availableMonths.map(m => ({ value: m, label: m }))
+      ],
+      icon: CalendarDays
+    },
+    {
+      id: 'categoryFilter',
+      label: 'Filter by Unit Category',
+      value: filters.category,
+      onChange: (value: string) => updateFilter('category', value),
+      options: [
+        { value: "All Categories", label: "All Categories" },
+        ...distinctCategories.map(c => ({ value: c, label: c }))
+      ],
+      icon: List
+    }
+  ];
+
   const handleAiAnalysis = async (): Promise<void> => {
     setIsAiModalOpen(true);
     setIsAiLoading(true);
@@ -314,7 +312,7 @@ const ElectricitySystemModule: React.FC = () => {
     
     // Simulate AI analysis
     setTimeout(() => {
-      setAiAnalysisResult(`AI Analysis Results for ${selectedMonth === "All Months" ? "All Months" : selectedMonth}:
+      setAiAnalysisResult(`AI Analysis Results for ${filters.month === "All Months" ? "All Months" : filters.month}:
 
 • Beachwell shows significant consumption variation across months - from 40 kWh in March to 38,168 kWh in January, indicating potential equipment cycling or seasonal demand.
 
@@ -357,7 +355,7 @@ Recommendations:
                             color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
                         }} 
                         onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
-                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}
+                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
                       > 
                         <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
                         <span>{tab.name}</span> 
@@ -369,52 +367,19 @@ Recommendations:
     );
   };
 
-  const FilterBar = () => {
-    const monthOptions = [{ value: "All Months", label: "All Months" }, ...availableMonths.map(m => ({ value: m, label: m }))];
-    const categoryOptions = [{ value: "All Categories", label: "All Categories" }, ...distinctCategories.map(c => ({ value: c, label: c }))];
-    
-    return (
-        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden fixed top-4 left-4 right-4 z-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                <StyledSelect 
-                  id="monthFilter" 
-                  label="Filter by Month" 
-                  value={selectedMonth} 
-                  onChange={(e) => setSelectedMonth(e.target.value)} 
-                  options={monthOptions} 
-                  icon={CalendarDays}
-                />
-                <StyledSelect 
-                  id="categoryFilter" 
-                  label="Filter by Unit Category" 
-                  value={selectedCategory} 
-                  onChange={(e) => setSelectedCategory(e.target.value)} 
-                  options={categoryOptions} 
-                  icon={List}
-                />
-                <button 
-                  onClick={() => { setSelectedMonth("All Months"); setSelectedCategory("All Categories"); }} 
-                  className="text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 h-[46px] w-full lg:w-auto hover:shadow-lg" 
-                  style={{ backgroundColor: COLORS.primaryDark }} 
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = COLORS.primary} 
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = COLORS.primaryDark}
-                > 
-                  <Filter size={16}/> 
-                  <span>Reset Filters</span> 
-                </button>
-            </div>
-        </div>
-    );
-  };
-
   return (
     <div className="space-y-6">
       <ElectricitySubNav />
       
-      {activeSubSection === 'Dashboard' && <FilterBar />}
+      {/* Universal Filter Bar - shown on all sections */}
+      <UniversalFilterBar
+        filters={filterConfig}
+        onResetFilters={resetFilters}
+        title="Electricity Analysis Filters"
+        sticky={true}
+      />
       
-      {/* Add padding-top to account for fixed filter bar */}
-      <div className={activeSubSection === 'Dashboard' ? 'pt-24' : ''}>
+      <div className="space-y-6">
         {activeSubSection === 'Dashboard' && (
           <>
             <div className="mb-6"> 
@@ -432,15 +397,15 @@ Recommendations:
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <SummaryCard title="Total Consumption" value={totalConsumptionKWh.toLocaleString(undefined, {maximumFractionDigits:0})} unit="kWh" icon={Zap} trend={selectedMonth === "All Months" ? "Overall" : `For ${selectedMonth}`} trendColor={"text-slate-500 font-medium dark:text-slate-400"} iconBgColor={COLORS.primary} />
+              <SummaryCard title="Total Consumption" value={totalConsumptionKWh.toLocaleString(undefined, {maximumFractionDigits:0})} unit="kWh" icon={Zap} trend={filters.month === "All Months" ? "Overall" : `For ${filters.month}`} trendColor={"text-slate-500 font-medium dark:text-slate-400"} iconBgColor={COLORS.primary} />
               <SummaryCard title="Total Est. Cost" value={totalCostOMR.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} unit="OMR" icon={DollarSign} trend="Based on selection" trendColor="text-slate-500 font-medium dark:text-slate-400" iconBgColor={COLORS.success} />
-              <SummaryCard title="Avg. Consumption/Unit" value={averageConsumptionPerUnit.toLocaleString(undefined, {maximumFractionDigits:0})} unit="kWh" icon={BarChart2} trend={selectedMonth === "All Months" ? "Overall" : `For ${selectedMonth}`} trendColor={"text-slate-500 font-medium dark:text-slate-400"} iconBgColor={COLORS.warning} />
+              <SummaryCard title="Avg. Consumption/Unit" value={averageConsumptionPerUnit.toLocaleString(undefined, {maximumFractionDigits:0})} unit="kWh" icon={BarChart2} trend={filters.month === "All Months" ? "Overall" : `For ${filters.month}`} trendColor={"text-slate-500 font-medium dark:text-slate-400"} iconBgColor={COLORS.warning} />
               <SummaryCard title="Active Meters" value={activeMeters} unit="units" icon={Users2} trend="In selection" trendColor="text-slate-500 font-medium dark:text-slate-400" iconBgColor={COLORS.info} />
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
               <div className="lg:col-span-3"> 
-                <ChartWrapper title="Consumption Trend (All Months)" subtitle={`For category: ${selectedCategory}`}> 
+                <ChartWrapper title="Consumption Trend (All Months)" subtitle={`For category: ${filters.category}`}> 
                   <ResponsiveContainer width="100%" height="100%"> 
                     <LineChart data={monthlyTrendForAllMonths} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}> 
                       <defs> 
@@ -461,7 +426,7 @@ Recommendations:
                 </ChartWrapper> 
               </div>
               <div className="lg:col-span-2"> 
-                <ChartWrapper title="Consumption by Type" subtitle={`For ${selectedMonth}`}> 
+                <ChartWrapper title="Consumption by Type" subtitle={`For ${filters.month}`}> 
                   <ResponsiveContainer width="100%" height="100%"> 
                     <PieChart> 
                       <Pie data={consumptionByTypeChartData} dataKey="value" nameKey="name" cx="50%" cy="45%" innerRadius={60} outerRadius={90} fill="#8884d8" paddingAngle={2} cornerRadius={5}> 
@@ -483,8 +448,6 @@ Recommendations:
 
         {activeSubSection === 'Performance' && (
           <>
-            <FilterBar />
-            
             {/* Performance KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <SummaryCard title="Efficiency Rate" value="84.2" unit="%" icon={TrendingUp} trend="+2.1% vs last month" trendColor="text-green-600" iconBgColor={COLORS.success} />
@@ -547,8 +510,6 @@ Recommendations:
 
         {activeSubSection === 'Analytics' && (
           <>
-            <FilterBar />
-            
             {/* Analytics Dashboard */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
@@ -671,8 +632,6 @@ Recommendations:
 
         {activeSubSection === 'UnitDetails' && (
           <>
-            <FilterBar />
-            
             {/* Unit Details Table */}
             <div className="bg-white rounded-xl shadow-lg border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
               <div className="p-6 border-b border-slate-200 dark:border-slate-700">
