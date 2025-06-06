@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Label as RechartsLabel, Area } from 'recharts';
 import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, Power, DollarSign, Filter, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, Menu, Moon, Sun, Download, Settings, AlertCircle, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { UniversalFilterBar, useFilterState } from '@/components/common/FilterBar';
 
 // ===============================
 // DESIGN SYSTEM & CONSTANTS
@@ -197,61 +198,20 @@ const WaterChartWrapper: React.FC<WaterChartWrapperProps> = ({ title, children, 
   </div>
 );
 
-interface WaterStyledSelectProps {
-  label: string;
-  value: string;
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: Array<{ value: string; label: string }>;
-  id: string;
-  icon?: any; // Adjust with the correct LucideIcon type if available
-  disabled?: boolean;
-  className?: string;
-}
-
-const WaterStyledSelect: React.FC<WaterStyledSelectProps> = ({
-    label,
-    value,
-    onChange,
-    options,
-    id,
-    icon: Icon,
-    disabled,
-    className
-  }) => {
-    return (
-        <div>
-            <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">{label}</label>
-            <div className="relative">
-                <select
-                  id={id}
-                  value={value}
-                  onChange={onChange}
-                  disabled={disabled}
-                  className={cn(
-                    "appearance-none w-full p-2.5 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:outline-none bg-white text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-primaryLight",
-                    className
-                  )}
-                >
-                    {options.map(option => ( <option key={option.value} value={option.value}>{option.label}</option> ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 dark:text-slate-400">
-                    {Icon ? <Icon size={16} /> : <ChevronDown size={16} />}
-                </div>
-            </div>
-        </div>
-    );
-  };
-
 // ===============================
 // WATER ANALYSIS MODULE
 // ===============================
 
 const WaterAnalysisModule = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedWaterMonth, setSelectedWaterMonth] = useState(waterMonthsAvailable.length > 0 ? waterMonthsAvailable[waterMonthsAvailable.length -1] : 'Mar-25');
   const [activeWaterSubSection, setActiveWaterSubSection] = useState('Overview');
-  const [selectedZone, setSelectedZone] = useState('All Zones');
   const [isClientDarkMode, setIsClientDarkMode] = useState(false);
+
+  // Filter state management using the new hook
+  const { filters, updateFilter, resetFilters } = useFilterState({
+    month: waterMonthsAvailable.length > 0 ? waterMonthsAvailable[waterMonthsAvailable.length - 1] : 'Mar-25',
+    zone: 'All Zones'
+  });
 
   useEffect(() => {
     setIsClientDarkMode(document.documentElement.classList.contains('dark'));
@@ -262,9 +222,41 @@ const WaterAnalysisModule = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Available zones for filter
+  const availableZones = useMemo(() => 
+    [...new Set(waterSystemData.map(d => d.zone))].filter(Boolean).sort(), 
+  []);
+
+  // Filter configuration for the universal filter bar
+  const filterConfig = [
+    {
+      id: 'monthFilter',
+      label: 'Filter by Month',
+      value: filters.month,
+      onChange: (value: string) => updateFilter('month', value),
+      options: [
+        { value: "All Months", label: "All Months" },
+        ...waterMonthsAvailable.map(m => ({ value: m, label: m }))
+      ],
+      icon: CalendarDays
+    },
+    {
+      id: 'zoneFilter',
+      label: 'Filter by Zone',
+      value: filters.zone,
+      onChange: (value: string) => updateFilter('zone', value),
+      options: [
+        { value: "All Zones", label: "All Zones" },
+        ...availableZones.map(z => ({ value: z, label: z }))
+      ],
+      icon: Building,
+      disabled: availableZones.length <= 1
+    }
+  ];
+
   // Water System Calculations based on hierarchical structure
   const waterCalculations = useMemo(() => {
-    const monthData = selectedWaterMonth;
+    const monthData = filters.month;
     
     const mainBulkMeter = waterSystemData.find(item => item.label === 'L1');
     const A1_totalSupply = mainBulkMeter ? mainBulkMeter.consumption[monthData] || 0 : 0;
@@ -294,7 +286,7 @@ const WaterAnalysisModule = () => {
       stage1LossPercent, stage2LossPercent, totalLossPercent, systemEfficiency,
       zoneBulkMeters, directConnections, endUserMeters
     };
-  }, [selectedWaterMonth]);
+  }, [filters.month]);
 
   const monthlyWaterTrendData = useMemo(() => {
     return waterMonthsAvailable.map(month => {
@@ -319,7 +311,7 @@ const WaterAnalysisModule = () => {
   }, []);
 
   const zoneConsumptionData = useMemo(() => {
-    const monthData = selectedWaterMonth;
+    const monthData = filters.month;
     const zoneData: { [key: string]: { zone: string; consumption: number; type: string } } = {};
 
     const L2_meters = waterSystemData.filter(item => item.label === 'L2');
@@ -342,19 +334,19 @@ const WaterAnalysisModule = () => {
     });
 
     // Filter out zones if a specific zone is selected
-    const filteredZoneData = selectedZone === 'All Zones'
+    const filteredZoneData = filters.zone === 'All Zones'
         ? Object.values(zoneData)
-        : Object.values(zoneData).filter(z => z.zone === selectedZone);
+        : Object.values(zoneData).filter(z => z.zone === filters.zone);
 
     return filteredZoneData.map(zone => ({
       ...zone,
       name: zone.zone, // Add a name property for charts
       value: zone.consumption, // Add a value property for charts
     }));
-  }, [selectedWaterMonth, selectedZone, waterSystemData]); // Added waterSystemData and selectedZone to dependencies
+  }, [filters.month, filters.zone, waterSystemData]); // Added waterSystemData and filters.zone to dependencies
 
   const topWaterConsumers = useMemo(() => {
-    const monthData = selectedWaterMonth;
+    const monthData = filters.month;
     return waterSystemData
       .filter(item => item.consumption[monthData] > 0)
       .map(item => ({
@@ -366,7 +358,7 @@ const WaterAnalysisModule = () => {
       }))
       .sort((a, b) => b.consumption - a.consumption)
       .slice(0, 10);
-  }, [selectedWaterMonth]);
+  }, [filters.month]);
 
   const WaterSubNav = () => {
     const isClientDarkMode = typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
@@ -391,7 +383,8 @@ const WaterAnalysisModule = () => {
                             color: isActive ? 'white' : (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark), 
                         }} 
                         onMouseOver={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = COLORS.primaryLight; e.currentTarget.style.color = 'white';} }} 
-                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}>
+                        onMouseOut={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = (isClientDarkMode ? COLORS.primaryLight : COLORS.primaryDark);}}}
+                      > 
                         <tab.icon size={18} style={{ color: isActive ? 'white' : COLORS.primary }}/> 
                         <span>{tab.name}</span> 
                       </button> 
@@ -402,47 +395,8 @@ const WaterAnalysisModule = () => {
     );
   };
 
-  const WaterFilterBar = () => {
-    const monthOptions = [{ value: "All Months", label: "All Months" }, ...waterMonthsAvailable.map(m => ({ value: m, label: m }))];
-    const zoneOptions = [{ value: "All Zones", label: "All Zones" }, ...[...new Set(waterSystemData.map(d => d.zone))].filter(Boolean).sort().map(z => ({ value: z, label: z }))];
-    
-    return (
-        <div className="bg-white shadow p-4 rounded-lg mb-6 print:hidden fixed top-4 left-4 right-4 z-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                <WaterStyledSelect 
-                  id="waterMonthFilter" 
-                  label="Filter by Month" 
-                  value={selectedWaterMonth} 
-                  onChange={(e) => setSelectedWaterMonth(e.target.value)} 
-                  options={monthOptions} 
-                  icon={CalendarDays}
-                />
-                <WaterStyledSelect 
-                  id="waterZoneFilter" 
-                  label="Filter by Zone" 
-                  value={selectedZone} 
-                  onChange={(e) => setSelectedZone(e.target.value)} 
-                  options={zoneOptions} 
-                  icon={Building}
-                  disabled={zoneOptions.length <= 1}
-                />
-                <button 
-                  onClick={() => { setSelectedWaterMonth('All Months'); setSelectedZone('All Zones'); }} 
-                  className="text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 h-[46px] w-full lg:w-auto hover:shadow-lg" 
-                  style={{ backgroundColor: COLORS.primaryDark }} 
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = COLORS.primary} 
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = COLORS.primaryDark}
-                > 
-                  <Filter size={16}/> 
-                  <span>Reset Filters</span> 
-                </button>
-            </div>
-        </div>
-    );
-  };
-
   const a2DistributionData = useMemo(() => {
-    const monthData = selectedWaterMonth;
+    const monthData = filters.month;
     const typeBreakdown: { [key: string]: number } = {};
     const zoneBreakdown: { [key: string]: number } = {};
 
@@ -480,7 +434,7 @@ const WaterAnalysisModule = () => {
         }))
         .sort((a, b) => b.value - a.value)
     };
-  }, [selectedWaterMonth, waterCalculations.A2_total]);
+  }, [filters.month, waterCalculations.A2_total]);
 
   if (waterMonthsAvailable.length === 0) {
     return (
@@ -494,19 +448,23 @@ const WaterAnalysisModule = () => {
     );
   }
 
-
   return (
     <div className="space-y-6">
       <WaterSubNav />
 
-      {activeWaterSubSection === 'Overview' && <WaterFilterBar />}
+      {/* Universal Filter Bar - shown on all sections */}
+      <UniversalFilterBar
+        filters={filterConfig}
+        onResetFilters={resetFilters}
+        title="Water Analysis Filters"
+        sticky={true}
+      />
 
-      {/* Add padding-top to account for fixed filter bar */}
-      <div className={activeWaterSubSection === 'Overview' ? 'pt-24' : ''}>
+      <div className="space-y-6">
         {activeWaterSubSection === 'Overview' && (
           <>
             <div className="mb-4">
-              <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water System Hierarchy Levels ({selectedWaterMonth})</h2>
+              <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water System Hierarchy Levels ({filters.month})</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <WaterSummaryCard 
                   title="A1 - Main Source (L1)" 
@@ -557,7 +515,7 @@ const WaterAnalysisModule = () => {
                 </ResponsiveContainer>
               </WaterChartWrapper>
 
-              <WaterChartWrapper title="Top Water Consumers" subtitle={`Highest consumption for ${selectedWaterMonth}`}>
+              <WaterChartWrapper title="Top Water Consumers" subtitle={`Highest consumption for ${filters.month}`}>
                 <div className="overflow-y-auto h-full">
                   <table className="w-full text-sm">
                     <thead className="sticky top-0 bg-card z-10">
@@ -582,13 +540,52 @@ const WaterAnalysisModule = () => {
                 </div>
               </WaterChartWrapper>
             </div>
+
+            <WaterChartWrapper title="A2 Distribution by Type" subtitle={`Breakdown for ${filters.month}`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={a2DistributionData.typeBreakdown}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label={({ name, percentage }) => `${name} (${percentage.toFixed(1)}%)`}
+                  >
+                    {a2DistributionData.typeBreakdown.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
+                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </WaterChartWrapper>
+
+            <WaterChartWrapper title="Top Consuming Zones" subtitle={`For ${filters.month}`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={a2DistributionData.zoneBreakdown.slice(0, 5)}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+                  <Tooltip 
+                    formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
+                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
+                  />
+                  <Bar dataKey="value" fill={COLORS.warning} name="Consumption (m³)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </WaterChartWrapper>
           </>
         )}
 
-        {activeWaterSubSection === 'WaterLoss' && (
+        {activeWaterSubSection === 'Detailed Analysis' && (
           <>
              <div className="mb-6">
-              <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water Loss Analysis ({selectedWaterMonth})</h2>
+              <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-4">Water Loss Analysis ({filters.month})</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <WaterSummaryCard 
                   title="Stage 1 Variance" 
@@ -622,7 +619,7 @@ const WaterAnalysisModule = () => {
                 />
               </div>
             </div>
-            <WaterChartWrapper title="Water Balance Diagram" subtitle={`Hierarchical flow for ${selectedWaterMonth}`}>
+            <WaterChartWrapper title="Water Balance Diagram" subtitle={`Hierarchical flow for ${filters.month}`}>
               <div className="space-y-3 p-1 sm:p-2 text-xs sm:text-sm overflow-x-auto">
                 <div className="text-center">
                   <div className="inline-block bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg border-2 border-blue-300 dark:border-blue-700">
@@ -658,26 +655,7 @@ const WaterAnalysisModule = () => {
           </>
         )}
 
-        {activeWaterSubSection === 'ZoneAnalysis' && (
-           <WaterChartWrapper title="Zone Bulk Consumption Analysis" subtitle={`Distribution for ${selectedWaterMonth}`}>
-              <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={zoneConsumptionData} layout="vertical" margin={{ left: 20, right: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
-                  <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}/>
-                  <YAxis dataKey="zone" type="category" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} width={80} />
-                  <Tooltip contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}} itemStyle={{color: 'var(--foreground)'}} labelStyle={{color: 'var(--foreground)', fontWeight: 'bold'}}/>
-                  <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
-                  <Bar dataKey="consumption" fill={COLORS.primary} name="Consumption (m³)" barSize={20} radius={[0, 5, 5, 0]}>
-                      {zoneConsumptionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
-                      ))}
-                  </Bar>
-              </BarChart>
-              </ResponsiveContainer>
-          </WaterChartWrapper>
-        )}
-
-        {activeWaterSubSection === 'Quality' && (
+        {activeWaterSubSection === 'Meter Data' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <WaterChartWrapper title="Water Quality Parameters" subtitle="Real-time sensor data (placeholder)">
               <div className="space-y-3 mt-2 overflow-y-auto h-full pr-2">
@@ -737,54 +715,9 @@ const WaterAnalysisModule = () => {
             </WaterChartWrapper>
           </div>
         )}
-
-        {activeWaterSubSection === 'Overview' && (
-          <>
-            <WaterChartWrapper title="A2 Distribution by Type" subtitle={`Breakdown for ${selectedWaterMonth}`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={a2DistributionData.typeBreakdown}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label={({ name, percentage }) => `${name} (${percentage.toFixed(1)}%)`}
-                  >
-                    {a2DistributionData.typeBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS.chart[index % COLORS.chart.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
-                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </WaterChartWrapper>
-
-            <WaterChartWrapper title="Top Consuming Zones" subtitle={`For ${selectedWaterMonth}`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={a2DistributionData.zoneBreakdown.slice(0, 5)}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
-                  <Tooltip 
-                    formatter={(value: number) => [`${value.toLocaleString()} m³`, 'Consumption']}
-                    contentStyle={{backgroundColor: 'var(--card)', borderRadius: 'var(--radius)', borderColor: 'var(--border)'}}
-                  />
-                  <Bar dataKey="value" fill={COLORS.warning} name="Consumption (m³)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </WaterChartWrapper>
-          </>
-        )}
       </div>
     </div>
   );
 };
 
 export default WaterAnalysisModule;
-
-    
