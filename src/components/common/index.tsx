@@ -498,3 +498,10 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
     </div>
   );
 };
+
+// ===============================
+// EXPORTS
+// ===============================
+
+// Export filter bar components
+export { UniversalFilterBar, useFilterState } from './FilterBar';
