@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UniversalFilterBar, useFilterState } from '@/components/common/FilterBar';
 import { 
   Search, 
   Filter, 
@@ -20,7 +21,9 @@ import {
   MoreHorizontal,
   Building,
   Activity,
-  LucideIcon
+  LucideIcon,
+  List,
+  Calendar
 } from 'lucide-react';
 
 // Type definitions
@@ -212,9 +215,12 @@ const contractorData: ContractorData[] = [
 ];
 
 export default function ContractorTrackerPage() {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  // Filter state management using the new hook
+  const { filters, updateFilter, resetFilters } = useFilterState({
+    search: '',
+    status: 'all',
+    category: 'all'
+  });
 
   // Get unique categories for filter
   const categories = useMemo(() => 
@@ -222,17 +228,49 @@ export default function ContractorTrackerPage() {
     []
   );
 
+  // Custom search filter function
+  const handleSearchChange = (value: string) => {
+    updateFilter('search', value);
+  };
+
+  // Filter configuration for the universal filter bar
+  const filterConfig = [
+    {
+      id: 'statusFilter',
+      label: 'Filter by Status',
+      value: filters.status,
+      onChange: (value: string) => updateFilter('status', value),
+      options: [
+        { value: "all", label: "All Statuses" },
+        { value: "active", label: "Active" },
+        { value: "expired", label: "Expired" }
+      ],
+      icon: CheckCircle
+    },
+    {
+      id: 'categoryFilter',
+      label: 'Filter by Category',
+      value: filters.category,
+      onChange: (value: string) => updateFilter('category', value),
+      options: [
+        { value: "all", label: "All Categories" },
+        ...categories.map(c => ({ value: c, label: c }))
+      ],
+      icon: List
+    }
+  ];
+
   // Filter contractors based on search and filters
   const filteredContractors = useMemo(() => {
     return contractorData.filter(contractor => {
-      const matchesSearch = contractor.contractor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           contractor.service.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || contractor.status.toLowerCase() === statusFilter;
-      const matchesCategory = categoryFilter === 'all' || contractor.category === categoryFilter;
+      const matchesSearch = contractor.contractor.toLowerCase().includes(filters.search.toLowerCase()) ||
+                           contractor.service.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesStatus = filters.status === 'all' || contractor.status.toLowerCase() === filters.status;
+      const matchesCategory = filters.category === 'all' || contractor.category === filters.category;
       
       return matchesSearch && matchesStatus && matchesCategory;
     });
-  }, [searchTerm, statusFilter, categoryFilter]);
+  }, [filters]);
 
   // Calculate summary statistics
   const stats = useMemo(() => {
@@ -353,73 +391,40 @@ export default function ContractorTrackerPage() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card className="p-4 fixed top-4 left-4 right-4 z-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search Contractors</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search by contractor name or service..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      {/* Universal Filter Bar with Search */}
+      <div className="space-y-4">
+        {/* Search Bar */}
+        <Card className="p-4">
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search Contractors</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search by contractor name or service..."
+                  value={filters.search}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
+            <Button className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
           </div>
+        </Card>
 
-          <div className="min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Filter Bar */}
+        <UniversalFilterBar
+          filters={filterConfig}
+          onResetFilters={resetFilters}
+          title="Advanced Filters"
+          sticky={true}
+        />
+      </div>
 
-          <div className="min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            onClick={() => {
-              setSearchTerm('');
-              setStatusFilter('all');
-              setCategoryFilter('all');
-            }}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Reset
-          </Button>
-
-          <Button className="flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </Card>
-
-      {/* Add padding-top to account for fixed filter bar */}
-      <div className="pt-24">
+      <div className="space-y-6">
         {/* Contractors Table */}
         <Card>
           <CardHeader>
