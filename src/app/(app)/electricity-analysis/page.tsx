@@ -153,7 +153,7 @@ const availableMonths = initialElectricityData.length > 0 && initialElectricityD
 interface SummaryCardProps {
   title: string;
   value: string | number;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: React.ComponentType<{ size?: string | number }>;
   unit?: string;
   trend?: string;
   trendColor?: string;
